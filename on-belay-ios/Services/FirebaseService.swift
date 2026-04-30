@@ -1,9 +1,9 @@
 import Foundation
-import FirebaseCore
-import FirebaseAuth
-import FirebaseFunctions
-import FirebaseFirestore
 import FirebaseMessaging
+import FirebaseFunctions
+import FirebaseAuth
+import FirebaseCore
+import Combine
 
 class FirebaseService: NSObject, ObservableObject {
     static let shared = FirebaseService()
@@ -95,13 +95,7 @@ class FirebaseService: NSObject, ObservableObject {
                 "code": group.code ?? "",
                 "startDate": group.startDate,
                 "endDate": group.endDate,
-                "phrases": group.phrases.map { [
-                    "phraseId": $0.phraseId,
-                    "selected": $0.selected,
-                    "prompt": $0.prompt,
-                    "soundFileName": $0.soundFileName,
-                    "utterances": $0.utterances
-                ]}
+                "phrases": group.phrases
             ]
             _ = try await functions.httpsCallable("setGroup").call(groupData)
             await fetchUserGroups()

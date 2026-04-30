@@ -40,6 +40,19 @@ struct Group: Codable, Identifiable, Hashable {
     var endAsDate: Date { Date(timeIntervalSince1970: (endDate ?? 0) / 1000) }
 
     // For search results which only have groupId, name, createdByName
+    init(groupId: String, name: String, createdByName: String, code: String?, startDate: TimeInterval?, endDate: TimeInterval?, phrases: [Phrase]?, createdByUid: String?, joinedUsers: [User]?) {
+        self.groupId = groupId
+        self.name = name
+        self.createdByName = createdByName
+        self.code = code
+        self.startDate = startDate
+        self.endDate = endDate
+        self.phrases = phrases
+        self.createdByUid = createdByUid
+        self.joinedUsers = joinedUsers
+    }
+
+    // For search results which only have groupId, name, createdByName
     init(groupId: String, name: String, createdByName: String) {
         self.groupId = groupId
         self.name = name

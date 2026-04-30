@@ -31,6 +31,6 @@
 "waiting_command" = "מחכה לפקודה...";
 "command_identified" = "פקודה זוהתה: %@";
 "permissions_required" = "נדרשות הרשאות";
-"permissions_message" = "אפליקציית On Belay זקוקה להרשאות מיקרופון, זיהוי דיבור והתראות כדי לפעול. אנא אפשר אותן בהגדרות.";
+"permissions_message" = "אפליקציית Belay is On זקוקה להרשאות מיקרופון, זיהוי דיבור והתראות כדי לפעול. אנא אפשר אותן בהגדרות.";
 "open_settings" = "פתח הגדרות";
 "error_date_range" = "טווח התאריכים אינו יכול לעלות על 30 יום.";

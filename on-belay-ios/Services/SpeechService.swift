@@ -1,6 +1,7 @@
 import Foundation
 import Speech
 import AVFoundation
+import Combine
 
 class SpeechService: NSObject, ObservableObject {
     static let shared = SpeechService()
@@ -143,7 +144,9 @@ class SpeechService: NSObject, ObservableObject {
         AudioService.shared.playSound(phrase.soundFileName, volume: volume)
 
         if let groupId = selectedGroup?.groupId {
-            FirebaseService.shared.notifyGroupMembers(groupId: groupId, phraseId: phrase.phraseId)
+            Task {
+                await FirebaseService.shared.notifyGroupMembers(groupId: groupId, phraseId: phrase.phraseId)
+            }
         }
 
         resetRecognitionRequest()

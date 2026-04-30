@@ -90,7 +90,7 @@ struct MainScreen: View {
                 .buttonStyle(.bordered)
                 .padding()
             }
-            .navigationTitle("On Belay")
+            .navigationTitle("Belay is On")
             .sheet(isPresented: $showingCreateGroup) {
                 CreateGroupDialog(isPresented: $showingCreateGroup)
             }

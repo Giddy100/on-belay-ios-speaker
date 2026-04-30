@@ -1,6 +1,5 @@
 import SwiftUI
 import FirebaseAuth
-import GoogleSignIn
 import AuthenticationServices
 
 struct LoginView: View {
@@ -14,7 +13,7 @@ struct LoginView: View {
                 .frame(width: 100, height: 100)
                 .padding()
 
-            Text("On Belay")
+            Text("Belay is On")
                 .font(.largeTitle)
                 .bold()
 
@@ -66,10 +65,10 @@ struct LoginView: View {
             if let appleIDCredential = auth.credential as? ASAuthorizationAppleIDCredential {
                 guard let appleIDToken = appleIDCredential.identityToken else { return }
                 guard let idTokenString = String(data: appleIDToken, encoding: .utf8) else { return }
-
-                let credential = OAuthProvider.credential(withProviderID: "apple.com",
-                                                           idToken: idTokenString,
-                                                           rawNonce: nil)
+                let nonce = LoginView.randomNonceString()
+                let credential = OAuthProvider.appleCredential(withIDToken: idTokenString,
+                                                               rawNonce: nonce,
+                                                               fullName: nil)
 
                 Auth.auth().signIn(with: credential) { _, error in
                     if let error = error {
@@ -81,4 +80,26 @@ struct LoginView: View {
             print("Apple Sign In error: \(error.localizedDescription)")
         }
     }
+    
+    static func randomNonceString(length: Int = 32) -> String {
+      precondition(length > 0)
+      var randomBytes = [UInt8](repeating: 0, count: length)
+      let errorCode = SecRandomCopyBytes(kSecRandomDefault, randomBytes.count, &randomBytes)
+      if errorCode != errSecSuccess {
+        fatalError(
+          "Unable to generate nonce. SecRandomCopyBytes failed with OSStatus \(errorCode)"
+        )
+      }
+
+      let charset: [Character] =
+        Array("0123456789ABCDEFGHIJKLMNOPQRSTUVXYZabcdefghijklmnopqrstuvwxyz-._")
+
+      let nonce = randomBytes.map { byte in
+        // Pick a random character from the set, wrapping around if needed.
+        charset[Int(byte) % charset.count]
+      }
+
+      return String(nonce)
+    }
+
 }

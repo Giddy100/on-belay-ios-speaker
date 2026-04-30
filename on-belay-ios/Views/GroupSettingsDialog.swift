@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAuth
 
 struct GroupSettingsDialog: View {
     @Binding var isPresented: Bool
@@ -73,7 +74,7 @@ struct GroupSettingsDialog: View {
                 }
             }
             .sheet(isPresented: $showingPhrases) {
-                PhrasesDialog(phrases: $group.phrases, isCreator: isCreator)
+                PhrasesDialog(phrases: Binding($group.phrases)!, isCreator: isCreator)
             }
             .alert(NSLocalizedString("are_you_sure_delete", comment: ""), isPresented: $showingDeleteAlert) {
                 Button(NSLocalizedString("yes", comment: ""), role: .destructive) { deleteGroup() }

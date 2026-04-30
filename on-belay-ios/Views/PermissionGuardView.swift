@@ -1,4 +1,6 @@
 import SwiftUI
+import Speech
+import AVFAudio
 
 struct PermissionGuardView<Content: View>: View {
     @State private var hasMicrophonePermission = false

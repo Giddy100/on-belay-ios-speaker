@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAuth
 
 struct CreateGroupDialog: View {
     @Binding var isPresented: Bool
@@ -62,12 +63,12 @@ struct CreateGroupDialog: View {
         let group = Group(
             groupId: UUID().uuidString,
             name: name,
+            createdByName: FirebaseService.shared.userSettings?.name ?? "",
             code: code,
             startDate: startDate.timeIntervalSince1970 * 1000,
             endDate: endDate.timeIntervalSince1970 * 1000,
             phrases: phrases,
             createdByUid: FirebaseService.shared.currentUser?.uid ?? "",
-            createdByName: FirebaseService.shared.userSettings?.name ?? "",
             joinedUsers: []
         )
         Task {

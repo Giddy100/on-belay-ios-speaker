@@ -1,7 +1,6 @@
 import SwiftUI
+import Foundation
 import FirebaseCore
-import FirebaseAuth
-import FirebaseMessaging
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
@@ -48,14 +47,13 @@ struct OnBelayApp: App {
     var body: some Scene {
         WindowGroup {
             PermissionGuardView {
-                Group {
-                    if firebaseService.currentUser != nil {
-                        MainScreen()
-                    } else {
-                        LoginView()
-                    }
+                if firebaseService.currentUser != nil {
+                    MainScreen()
+                        .environment(\.layoutDirection, isHebrew ? .rightToLeft : .leftToRight)
+                } else {
+                    LoginView()
+                        .environment(\.layoutDirection, isHebrew ? .rightToLeft : .leftToRight)
                 }
-                .environment(\.layoutDirection, isHebrew ? .rightToLeft : .leftToRight)
             }
         }
     }

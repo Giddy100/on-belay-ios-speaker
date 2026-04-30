@@ -31,6 +31,6 @@
 "waiting_command" = "Waiting for command...";
 "command_identified" = "Command identified: %@";
 "permissions_required" = "Permissions Required";
-"permissions_message" = "On Belay requires Microphone, Speech Recognition, and Notification permissions to function. Please enable them in Settings.";
+"permissions_message" = "Belay is On requires Microphone, Speech Recognition, and Notification permissions to function. Please enable them in Settings.";
 "open_settings" = "Open Settings";
 "error_date_range" = "Date range cannot exceed 30 days.";
