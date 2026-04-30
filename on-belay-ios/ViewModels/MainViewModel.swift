@@ -5,6 +5,7 @@ class MainViewModel: ObservableObject {
     @Published var firebase = FirebaseService.shared
     @Published var speech = SpeechService.shared
 
+    @Published var selectedGroupId: String = ""
     @Published var selectedGroup: Group?
     @Published var isActive: Bool = false
 
@@ -15,14 +16,18 @@ class MainViewModel: ObservableObject {
             .sink { [weak self] settings in
                 if let settings = settings {
                     self?.isActive = settings.isActive
-                    self?.updateSelectedGroup(id: settings.selectedGroupId)
+                    let groupId = settings.selectedGroupId ?? ""
+                    if self?.selectedGroupId != groupId {
+                        self?.selectedGroupId = groupId
+                        self?.updateSelectedGroup(id: groupId)
+                    }
                 }
             }
             .store(in: &cancellables)
 
         firebase.$userGroups
             .sink { [weak self] _ in
-                self?.updateSelectedGroup(id: self?.firebase.userSettings?.selectedGroupId)
+                self?.updateSelectedGroup(id: self?.selectedGroupId)
             }
             .store(in: &cancellables)
     }
@@ -56,10 +61,13 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    func selectGroup(_ group: Group) {
+    func selectGroup(id: String) {
+        guard id != selectedGroupId else { return }
+        selectedGroupId = id
+        updateSelectedGroup(id: id)
+
         Task {
-            await firebase.setUserSettings(["selectedGroupId": group.groupId])
-            updateSelectedGroup(id: group.groupId)
+            await firebase.setUserSettings(["selectedGroupId": id])
         }
     }
 }

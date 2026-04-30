@@ -73,6 +73,17 @@ struct LoginView: View {
                 Auth.auth().signIn(with: credential) { _, error in
                     if let error = error {
                         print("Error signing in with Apple: \(error.localizedDescription)")
+                        return
+                    }
+
+                    if let fullName = appleIDCredential.fullName {
+                        let formatter = PersonNameComponentsFormatter()
+                        let nameString = formatter.string(from: fullName).trimmingCharacters(in: .whitespaces)
+                        if !nameString.isEmpty {
+                            Task {
+                                await firebase.setUserSettings(["name": nameString])
+                            }
+                        }
                     }
                 }
             }

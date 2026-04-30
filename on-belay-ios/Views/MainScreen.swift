@@ -33,17 +33,17 @@ struct MainScreen: View {
 
                 // Group Dropdown & Settings
                 HStack {
-                    Picker(NSLocalizedString("settings", comment: ""), selection: $viewModel.selectedGroup) {
-                        Text("Select Group").tag(Optional<Group>.none)
+                    Picker(NSLocalizedString("settings", comment: ""), selection: $viewModel.selectedGroupId) {
+                        Text("Select Group").tag("")
                         ForEach(viewModel.firebase.userGroups) { group in
-                            Text(group.name).tag(Optional(group))
+                            Text(group.name).tag(group.groupId)
                         }
                     }
                     .pickerStyle(.menu)
-                    .frame(maxWidth: .infinity)
-                    .onChange(of: viewModel.selectedGroup) { _, newValue in
-                        if let group = newValue {
-                            viewModel.selectGroup(group)
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .onChange(of: viewModel.selectedGroupId) { _, newValue in
+                        if !newValue.isEmpty {
+                            viewModel.selectGroup(id: newValue)
                         }
                     }
 
