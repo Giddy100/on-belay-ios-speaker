@@ -1,6 +1,6 @@
 ## Project Overview
 
-**OnBelay** - Android and iPhone App for Multi Pitch Climbers
+**Belay is On** - Android and iPhone App for Multi Pitch Climbers
 
 ## Purpose
 
