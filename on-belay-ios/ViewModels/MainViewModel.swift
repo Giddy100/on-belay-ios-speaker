@@ -24,6 +24,12 @@ class MainViewModel: ObservableObject {
                 self?.updateSelectedGroup(id: self?.selectedGroupId)
             }
             .store(in: &cancellables)
+
+        speech.$logs
+            .sink { [weak self] _ in
+                self?.objectWillChange.send()
+            }
+            .store(in: &cancellables)
     }
 
     private func updateSelectedGroup(id: String?) {

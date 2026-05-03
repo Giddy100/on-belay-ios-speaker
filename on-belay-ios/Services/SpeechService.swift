@@ -29,15 +29,17 @@ class SpeechService: NSObject, ObservableObject {
     }
 
     func startListening() {
-        guard !audioEngine.isRunning else { return }
-
+        print("SpeechService: Requesting authorization...")
+        addLog("Requesting speech authorization...")
         SFSpeechRecognizer.requestAuthorization { status in
             DispatchQueue.main.async {
+                print("SpeechService: Authorization status: \(status.rawValue)")
                 switch status {
                 case .authorized:
                     self.doStartListening()
                 default:
                     self.lastError = "Speech recognition not authorized"
+                    self.addLog("Error: Speech recognition not authorized")
                 }
             }
         }
@@ -54,15 +56,25 @@ class SpeechService: NSObject, ObservableObject {
     }
 
     private func doStartListening() {
+        print("SpeechService: doStartListening called")
+        guard !audioEngine.isRunning else {
+            print("SpeechService: Audio engine already running")
+            return
+        }
+
         do {
             try configureAudioSession()
 
             recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-            guard let recognitionRequest = recognitionRequest else { return }
+            guard let recognitionRequest = recognitionRequest else {
+                print("SpeechService: Unable to create recognition request")
+                return
+            }
             recognitionRequest.shouldReportPartialResults = true
             recognitionRequest.requiresOnDeviceRecognition = true
 
             let inputNode = audioEngine.inputNode
+            inputNode.removeTap(onBus: 0)
 
             recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { [weak self] result, error in
                 guard let self = self else { return }
@@ -85,10 +97,13 @@ class SpeechService: NSObject, ObservableObject {
 
             audioEngine.prepare()
             try audioEngine.start()
+            print("SpeechService: Audio engine started")
 
             isListening = true
             addLog(NSLocalizedString("waiting_wakeup", comment: ""))
         } catch {
+            print("SpeechService: Error starting listening: \(error.localizedDescription)")
+            addLog("Error starting listening: \(error.localizedDescription)")
             lastError = error.localizedDescription
             isListening = false
         }
