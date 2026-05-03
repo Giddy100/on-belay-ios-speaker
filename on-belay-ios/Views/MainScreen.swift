@@ -48,13 +48,13 @@ struct MainScreen: View {
                     Button(action: { showingGroupSettings = true }) {
                         Image(systemName: "gearshape")
                     }
-                    .disabled(viewModel.selectedGroup == nil)
+                    .disabled(viewModel.selectedGroupId.isEmpty)
                 }
                 .padding(.horizontal)
 
                 // Active Switch
                 Toggle(NSLocalizedString("active", comment: ""), isOn: $viewModel.isActive)
-                    .disabled(viewModel.selectedGroup == nil)
+                    .disabled(viewModel.selectedGroupId.isEmpty)
                     .onChange(of: viewModel.isActive) { _, _ in
                         viewModel.toggleActive()
                     }

@@ -102,9 +102,11 @@ class SpeechService: NSObject, ObservableObject {
 
     private func handleSpeechResult(_ result: SFSpeechRecognitionResult) {
         let transcript = result.bestTranscription.formattedString.lowercased()
+        print("Speech transcription: \(transcript)")
 
         if !isWaitingForCommand {
             if transcript.contains(wakeupPhrase.lowercased()) {
+                addLog("Wakeup phrase '\(wakeupPhrase)' detected")
                 enterCommandMode()
             }
         } else {
@@ -115,6 +117,7 @@ class SpeechService: NSObject, ObservableObject {
     }
 
     private func enterCommandMode() {
+        print("Entering command mode. Looking for commands...")
         isWaitingForCommand = true
         addLog(NSLocalizedString("waiting_command", comment: ""))
 
@@ -137,6 +140,7 @@ class SpeechService: NSObject, ObservableObject {
     }
 
     private func processCommand(_ phrase: Phrase) {
+        print("Command identified: \(phrase.name)")
         commandTimer?.invalidate()
         isWaitingForCommand = false
         addLog(String(format: NSLocalizedString("command_identified", comment: ""), phrase.name))
