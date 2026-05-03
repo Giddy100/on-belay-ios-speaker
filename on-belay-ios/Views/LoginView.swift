@@ -13,7 +13,7 @@ struct LoginView: View {
                 .frame(width: 100, height: 100)
                 .padding()
 
-            Text("Belay is On")
+            Text(NSLocalizedString("app_name", comment: ""))
                 .font(.largeTitle)
                 .bold()
 
@@ -26,7 +26,7 @@ struct LoginView: View {
             Button(action: signInWithGoogle) {
                 HStack {
                     Image(systemName: "g.circle.fill")
-                    Text("Sign in with Google")
+                    Text(NSLocalizedString("sign_in_google", comment: ""))
                 }
                 .frame(maxWidth: .infinity)
                 .padding()

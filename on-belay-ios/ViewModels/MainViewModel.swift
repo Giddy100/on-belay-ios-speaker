@@ -12,21 +12,15 @@ class MainViewModel: ObservableObject {
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        firebase.$userSettings
-            .sink { [weak self] settings in
+        Publishers.CombineLatest(firebase.$userSettings, firebase.$userGroups)
+            .sink { [weak self] settings, groups in
                 if let settings = settings {
                     self?.isActive = settings.isActive
                     let groupId = settings.selectedGroupId ?? ""
                     if self?.selectedGroupId != groupId {
                         self?.selectedGroupId = groupId
-                        self?.updateSelectedGroup(id: groupId)
                     }
                 }
-            }
-            .store(in: &cancellables)
-
-        firebase.$userGroups
-            .sink { [weak self] _ in
                 self?.updateSelectedGroup(id: self?.selectedGroupId)
             }
             .store(in: &cancellables)
@@ -37,6 +31,7 @@ class MainViewModel: ObservableObject {
             self.selectedGroup = firebase.userGroups.first { $0.groupId == id }
         } else {
             self.selectedGroup = nil
+            self.isActive = false // Deactivate if no group is selected
         }
 
         speech.setup(

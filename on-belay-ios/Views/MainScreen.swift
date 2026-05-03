@@ -34,7 +34,7 @@ struct MainScreen: View {
                 // Group Dropdown & Settings
                 HStack {
                     Picker(NSLocalizedString("settings", comment: ""), selection: $viewModel.selectedGroupId) {
-                        Text("Select Group").tag("")
+                        Text(NSLocalizedString("select_group", comment: "")).tag("")
                         ForEach(viewModel.firebase.userGroups) { group in
                             Text(group.name).tag(group.groupId)
                         }
@@ -42,9 +42,7 @@ struct MainScreen: View {
                     .pickerStyle(.menu)
                     .frame(maxWidth: .infinity, alignment: .leading)
                     .onChange(of: viewModel.selectedGroupId) { _, newValue in
-                        if !newValue.isEmpty {
-                            viewModel.selectGroup(id: newValue)
-                        }
+                        viewModel.selectGroup(id: newValue)
                     }
 
                     Button(action: { showingGroupSettings = true }) {
@@ -90,7 +88,7 @@ struct MainScreen: View {
                 .buttonStyle(.bordered)
                 .padding()
             }
-            .navigationTitle("Belay is On")
+            .navigationTitle(NSLocalizedString("app_name", comment: ""))
             .sheet(isPresented: $showingCreateGroup) {
                 CreateGroupDialog(isPresented: $showingCreateGroup)
             }
