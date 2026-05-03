@@ -29,8 +29,8 @@ class SpeechService: NSObject, ObservableObject {
     }
 
     func startListening() {
+        isListening = true
         print("SpeechService: Requesting authorization...")
-        addLog("Requesting speech authorization...")
         SFSpeechRecognizer.requestAuthorization { status in
             DispatchQueue.main.async {
                 print("SpeechService: Authorization status: \(status.rawValue)")
@@ -38,6 +38,7 @@ class SpeechService: NSObject, ObservableObject {
                 case .authorized:
                     self.doStartListening()
                 default:
+                    self.isListening = false
                     self.lastError = "Speech recognition not authorized"
                     self.addLog("Error: Speech recognition not authorized")
                 }
@@ -82,8 +83,13 @@ class SpeechService: NSObject, ObservableObject {
                     self.handleSpeechResult(result)
                 }
 
-                if error != nil || result?.isFinal == true {
-                    // SFSpeechRecognizer has a time limit. Restart when it expires.
+                if let error = error {
+                    print("SpeechService: Recognition error: \(error.localizedDescription)")
+                    if self.isListening {
+                        self.restartRecognition()
+                    }
+                } else if result?.isFinal == true {
+                    print("SpeechService: Recognition final")
                     if self.isListening {
                         self.restartRecognition()
                     }
@@ -195,7 +201,13 @@ class SpeechService: NSObject, ObservableObject {
             if let result = result {
                 self.handleSpeechResult(result)
             }
-            if error != nil || result?.isFinal == true {
+            if let error = error {
+                print("SpeechService: Recognition error (reset): \(error.localizedDescription)")
+                if self.isListening {
+                    self.restartRecognition()
+                }
+            } else if result?.isFinal == true {
+                print("SpeechService: Recognition final (reset)")
                 if self.isListening {
                     self.restartRecognition()
                 }
@@ -204,9 +216,18 @@ class SpeechService: NSObject, ObservableObject {
     }
 
     private func restartRecognition() {
-        stopListening()
-        DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
-            self.startListening()
+        print("SpeechService: restartRecognition called")
+
+        // Stop current task and engine but keep isListening = true
+        audioEngine.stop()
+        audioEngine.inputNode.removeTap(onBus: 0)
+        recognitionRequest?.endAudio()
+        recognitionTask?.cancel()
+
+        DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
+            if self.isListening {
+                self.doStartListening()
+            }
         }
     }
 
