@@ -63,6 +63,13 @@ class SpeechService: NSObject, ObservableObject {
             return
         }
 
+        guard speechRecognizer.isAvailable else {
+            print("SpeechService: Speech recognizer not available")
+            addLog(NSLocalizedString("error_siri_disabled", comment: ""))
+            isListening = false
+            return
+        }
+
         do {
             try configureAudioSession()
 
@@ -85,7 +92,13 @@ class SpeechService: NSObject, ObservableObject {
 
                 if let error = error {
                     print("SpeechService: Recognition error: \(error.localizedDescription)")
-                    if self.isListening {
+
+                    let nsError = error as NSError
+                    if nsError.domain == "kAFAssistantErrorDomain" && nsError.code == 203 {
+                        // "Siri and Dictation are disabled"
+                        self.addLog(NSLocalizedString("error_siri_disabled", comment: ""))
+                        self.stopListening()
+                    } else if self.isListening {
                         self.restartRecognition()
                     }
                 } else if result?.isFinal == true {
@@ -203,7 +216,11 @@ class SpeechService: NSObject, ObservableObject {
             }
             if let error = error {
                 print("SpeechService: Recognition error (reset): \(error.localizedDescription)")
-                if self.isListening {
+                let nsError = error as NSError
+                if nsError.domain == "kAFAssistantErrorDomain" && nsError.code == 203 {
+                    self.addLog(NSLocalizedString("error_siri_disabled", comment: ""))
+                    self.stopListening()
+                } else if self.isListening {
                     self.restartRecognition()
                 }
             } else if result?.isFinal == true {

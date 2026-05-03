@@ -38,3 +38,4 @@
 "app_name" = "Belay is On";
 "sign_in_google" = "Sign in with Google";
 "check_again" = "Check Again";
+"error_siri_disabled" = "Siri and Dictation are disabled in Settings. Please enable them to use voice commands.";

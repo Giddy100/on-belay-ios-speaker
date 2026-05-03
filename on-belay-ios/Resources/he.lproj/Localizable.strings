@@ -38,3 +38,4 @@
 "app_name" = "Belay is On";
 "sign_in_google" = "התחבר עם Google";
 "check_again" = "בדוק שוב";
+"error_siri_disabled" = "Siri והכתבה מושבתים בהגדרות. אנא הפעל אותם כדי להשתמש בפקודות קוליות.";
