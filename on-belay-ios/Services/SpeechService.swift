@@ -6,10 +6,9 @@ import Combine
 class SpeechService: NSObject, ObservableObject {
     static let shared = SpeechService()
 
-    private let speechRecognizer = SFSpeechRecognizer(locale: Locale(identifier: "en-US"))!
-    private var recognitionRequest: SFSpeechAudioBufferRecognitionRequest?
-    private var recognitionTask: SFSpeechRecognitionTask?
     private let audioEngine = AVAudioEngine()
+    private var analyzer: SpeechAnalyzer?
+    private var task: Task<Void, Never>?
 
     @Published var isListening = false
     @Published var logs: [String] = []
@@ -47,10 +46,12 @@ class SpeechService: NSObject, ObservableObject {
     }
 
     func stopListening() {
+        print("SpeechService: stopListening called")
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
-        recognitionRequest?.endAudio()
-        recognitionTask?.cancel()
+        task?.cancel()
+        task = nil
+        analyzer = nil
         isListening = false
         isWaitingForCommand = false
         commandTimer?.invalidate()
@@ -63,55 +64,42 @@ class SpeechService: NSObject, ObservableObject {
             return
         }
 
-        guard speechRecognizer.isAvailable else {
-            print("SpeechService: Speech recognizer not available")
-            addLog(NSLocalizedString("error_siri_disabled", comment: ""))
-            isListening = false
-            return
-        }
-
         do {
             try configureAudioSession()
 
-            recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-            guard let recognitionRequest = recognitionRequest else {
-                print("SpeechService: Unable to create recognition request")
-                return
-            }
-            recognitionRequest.shouldReportPartialResults = true
-            recognitionRequest.requiresOnDeviceRecognition = true
-
             let inputNode = audioEngine.inputNode
+            let recordingFormat = inputNode.outputFormat(forBus: 0)
             inputNode.removeTap(onBus: 0)
 
-            recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest) { [weak self] result, error in
-                guard let self = self else { return }
-                if let result = result {
-                    self.handleSpeechResult(result)
-                }
+            // Initialize the modern SpeechAnalyzer
+            let analyzer = try SpeechAnalyzer(audioFormat: recordingFormat)
+            self.analyzer = analyzer
 
-                if let error = error {
-                    print("SpeechService: Recognition error: \(error.localizedDescription)")
+            let transcriber = SpeechTranscriber()
+            let detector = SpeechDetector()
+
+            task = Task {
+                print("SpeechService: Starting analyzer results loop")
+                do {
+                    for await result in analyzer.results(modules: [transcriber, detector]) {
+                        if Task.isCancelled { break }
+                        self.handleAnalyzerResult(result)
+                    }
+                } catch {
+                    print("SpeechService: Analyzer error: \(error.localizedDescription)")
 
                     let nsError = error as NSError
                     if nsError.domain == "kAFAssistantErrorDomain" && nsError.code == 203 {
-                        // "Siri and Dictation are disabled"
                         self.addLog(NSLocalizedString("error_siri_disabled", comment: ""))
                         self.stopListening()
                     } else if self.isListening {
                         self.restartRecognition()
                     }
-                } else if result?.isFinal == true {
-                    print("SpeechService: Recognition final")
-                    if self.isListening {
-                        self.restartRecognition()
-                    }
                 }
             }
 
-            let recordingFormat = inputNode.outputFormat(forBus: 0)
             inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
-                self?.recognitionRequest?.append(buffer)
+                self?.analyzer?.append(buffer)
             }
 
             audioEngine.prepare()
@@ -134,8 +122,20 @@ class SpeechService: NSObject, ObservableObject {
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
     }
 
-    private func handleSpeechResult(_ result: SFSpeechRecognitionResult) {
-        let transcript = result.bestTranscription.formattedString.lowercased()
+    private func handleAnalyzerResult(_ result: SpeechAnalyzer.Result) {
+        if let transcription = result.transcription {
+            handleTranscription(transcription)
+        }
+
+        if let detection = result.speechDetection {
+            if detection.isSpeechDetected {
+                print("SpeechService: Voice activity detected")
+            }
+        }
+    }
+
+    private func handleTranscription(_ transcription: SpeechTranscriber.Result) {
+        let transcript = transcription.bestTranscription.formattedString.lowercased()
         print("Speech transcription: \(transcript)")
 
         if !isWaitingForCommand {
@@ -155,8 +155,8 @@ class SpeechService: NSObject, ObservableObject {
         isWaitingForCommand = true
         addLog(NSLocalizedString("waiting_command", comment: ""))
 
-        // Reset transcript by starting a new request
-        resetRecognitionRequest()
+        // Reset analyzer to get a clean transcript for the command
+        resetAnalyzer()
 
         commandTimer?.invalidate()
         commandTimer = Timer.scheduledTimer(withTimeInterval: 8.0, repeats: false) { [weak self] _ in
@@ -187,7 +187,7 @@ class SpeechService: NSObject, ObservableObject {
             }
         }
 
-        resetRecognitionRequest()
+        resetAnalyzer()
         addLog(NSLocalizedString("waiting_wakeup", comment: ""))
     }
 
@@ -196,39 +196,35 @@ class SpeechService: NSObject, ObservableObject {
             isWaitingForCommand = false
             addLog(NSLocalizedString("no_command", comment: ""))
             AudioService.shared.playSound("no_command.wav", volume: volume)
-            resetRecognitionRequest()
+            resetAnalyzer()
             addLog(NSLocalizedString("waiting_wakeup", comment: ""))
         }
     }
 
-    private func resetRecognitionRequest() {
-        recognitionTask?.cancel()
-        recognitionRequest?.endAudio()
+    private func resetAnalyzer() {
+        print("SpeechService: Resetting analyzer")
+        task?.cancel()
+        task = nil
+        analyzer = nil
 
-        recognitionRequest = SFSpeechAudioBufferRecognitionRequest()
-        recognitionRequest?.shouldReportPartialResults = true
-        recognitionRequest?.requiresOnDeviceRecognition = true
+        guard let inputNode = try? audioEngine.inputNode else { return }
+        let recordingFormat = inputNode.outputFormat(forBus: 0)
 
-        recognitionTask = speechRecognizer.recognitionTask(with: recognitionRequest!) { [weak self] result, error in
-            guard let self = self else { return }
-            if let result = result {
-                self.handleSpeechResult(result)
-            }
-            if let error = error {
-                print("SpeechService: Recognition error (reset): \(error.localizedDescription)")
-                let nsError = error as NSError
-                if nsError.domain == "kAFAssistantErrorDomain" && nsError.code == 203 {
-                    self.addLog(NSLocalizedString("error_siri_disabled", comment: ""))
-                    self.stopListening()
-                } else if self.isListening {
-                    self.restartRecognition()
-                }
-            } else if result?.isFinal == true {
-                print("SpeechService: Recognition final (reset)")
-                if self.isListening {
-                    self.restartRecognition()
+        do {
+            let analyzer = try SpeechAnalyzer(audioFormat: recordingFormat)
+            self.analyzer = analyzer
+
+            let transcriber = SpeechTranscriber()
+            let detector = SpeechDetector()
+
+            task = Task {
+                for await result in analyzer.results(modules: [transcriber, detector]) {
+                    if Task.isCancelled { break }
+                    self.handleAnalyzerResult(result)
                 }
             }
+        } catch {
+            print("SpeechService: Error resetting analyzer: \(error.localizedDescription)")
         }
     }
 
@@ -238,8 +234,9 @@ class SpeechService: NSObject, ObservableObject {
         // Stop current task and engine but keep isListening = true
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
-        recognitionRequest?.endAudio()
-        recognitionTask?.cancel()
+        task?.cancel()
+        task = nil
+        analyzer = nil
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             if self.isListening {
