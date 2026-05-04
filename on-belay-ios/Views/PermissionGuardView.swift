@@ -38,7 +38,7 @@ struct PermissionGuardView<Content: View>: View {
                 }
                 .buttonStyle(.borderedProminent)
 
-                Button("Check Again") {
+                Button(NSLocalizedString("check_again", comment: "")) {
                     checkPermissions()
                 }
             }

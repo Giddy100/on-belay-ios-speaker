@@ -33,32 +33,30 @@ struct MainScreen: View {
 
                 // Group Dropdown & Settings
                 HStack {
-                    Picker(NSLocalizedString("settings", comment: ""), selection: $viewModel.selectedGroup) {
-                        Text("Select Group").tag(Optional<Group>.none)
+                    Picker(NSLocalizedString("settings", comment: ""), selection: $viewModel.selectedGroupId) {
+                        Text(NSLocalizedString("select_group", comment: "")).tag("")
                         ForEach(viewModel.firebase.userGroups) { group in
-                            Text(group.name).tag(Optional(group))
+                            Text(group.name).tag(group.groupId)
                         }
                     }
                     .pickerStyle(.menu)
-                    .frame(maxWidth: .infinity)
-                    .onChange(of: viewModel.selectedGroup) { _, newValue in
-                        if let group = newValue {
-                            viewModel.selectGroup(group)
-                        }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .onChange(of: viewModel.selectedGroupId) { _, newValue in
+                        viewModel.selectGroup(id: newValue)
                     }
 
                     Button(action: { showingGroupSettings = true }) {
                         Image(systemName: "gearshape")
                     }
-                    .disabled(viewModel.selectedGroup == nil)
+                    .disabled(viewModel.selectedGroupId.isEmpty)
                 }
                 .padding(.horizontal)
 
                 // Active Switch
                 Toggle(NSLocalizedString("active", comment: ""), isOn: $viewModel.isActive)
-                    .disabled(viewModel.selectedGroup == nil)
+                    .disabled(viewModel.selectedGroupId.isEmpty)
                     .onChange(of: viewModel.isActive) { _, _ in
-                        viewModel.toggleActive()
+                        viewModel.activeToggled()
                     }
                     .padding(.horizontal)
 
@@ -66,7 +64,8 @@ struct MainScreen: View {
                 if viewModel.isActive {
                     ScrollView {
                         VStack(alignment: .leading) {
-                            ForEach(viewModel.speech.logs, id: \.self) { log in
+                            ForEach(viewModel.speech.logs.indices, id: \.self) { index in
+                                let log = viewModel.speech.logs[index]
                                 Text(log)
                                     .font(.system(.body, design: .monospaced))
                                     .padding(.vertical, 2)
@@ -90,7 +89,7 @@ struct MainScreen: View {
                 .buttonStyle(.bordered)
                 .padding()
             }
-            .navigationTitle("Belay is On")
+            .navigationTitle(NSLocalizedString("app_name", comment: ""))
             .sheet(isPresented: $showingCreateGroup) {
                 CreateGroupDialog(isPresented: $showingCreateGroup)
             }

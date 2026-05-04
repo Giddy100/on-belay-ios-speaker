@@ -5,24 +5,29 @@ class MainViewModel: ObservableObject {
     @Published var firebase = FirebaseService.shared
     @Published var speech = SpeechService.shared
 
+    @Published var selectedGroupId: String = ""
     @Published var selectedGroup: Group?
     @Published var isActive: Bool = false
 
     private var cancellables = Set<AnyCancellable>()
 
     init() {
-        firebase.$userSettings
-            .sink { [weak self] settings in
+        Publishers.CombineLatest(firebase.$userSettings, firebase.$userGroups)
+            .sink { [weak self] settings, groups in
                 if let settings = settings {
                     self?.isActive = settings.isActive
-                    self?.updateSelectedGroup(id: settings.selectedGroupId)
+                    let groupId = settings.selectedGroupId ?? ""
+                    if self?.selectedGroupId != groupId {
+                        self?.selectedGroupId = groupId
+                    }
                 }
+                self?.updateSelectedGroup(id: self?.selectedGroupId)
             }
             .store(in: &cancellables)
 
-        firebase.$userGroups
+        speech.$logs
             .sink { [weak self] _ in
-                self?.updateSelectedGroup(id: self?.firebase.userSettings?.selectedGroupId)
+                self?.objectWillChange.send()
             }
             .store(in: &cancellables)
     }
@@ -32,6 +37,7 @@ class MainViewModel: ObservableObject {
             self.selectedGroup = firebase.userGroups.first { $0.groupId == id }
         } else {
             self.selectedGroup = nil
+            self.isActive = false // Deactivate if no group is selected
         }
 
         speech.setup(
@@ -41,9 +47,8 @@ class MainViewModel: ObservableObject {
         )
     }
 
-    func toggleActive() {
+    func activeToggled() {
         guard selectedGroup != nil else { return }
-        isActive.toggle()
 
         Task {
             await firebase.setUserSettings(["isActive": isActive])
@@ -56,10 +61,13 @@ class MainViewModel: ObservableObject {
         }
     }
 
-    func selectGroup(_ group: Group) {
+    func selectGroup(id: String) {
+        guard id != selectedGroupId else { return }
+        selectedGroupId = id
+        updateSelectedGroup(id: id)
+
         Task {
-            await firebase.setUserSettings(["selectedGroupId": group.groupId])
-            updateSelectedGroup(id: group.groupId)
+            await firebase.setUserSettings(["selectedGroupId": id])
         }
     }
 }

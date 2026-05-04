@@ -34,3 +34,8 @@
 "permissions_message" = "אפליקציית Belay is On זקוקה להרשאות מיקרופון, זיהוי דיבור והתראות כדי לפעול. אנא אפשר אותן בהגדרות.";
 "open_settings" = "פתח הגדרות";
 "error_date_range" = "טווח התאריכים אינו יכול לעלות על 30 יום.";
+"select_group" = "בחר קבוצה";
+"app_name" = "Belay is On";
+"sign_in_google" = "התחבר עם Google";
+"check_again" = "בדוק שוב";
+"error_siri_disabled" = "Siri והכתבה מושבתים בהגדרות. אנא הפעל אותם כדי להשתמש בפקודות קוליות.";

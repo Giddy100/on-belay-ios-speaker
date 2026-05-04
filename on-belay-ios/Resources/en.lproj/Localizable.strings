@@ -34,3 +34,8 @@
 "permissions_message" = "Belay is On requires Microphone, Speech Recognition, and Notification permissions to function. Please enable them in Settings.";
 "open_settings" = "Open Settings";
 "error_date_range" = "Date range cannot exceed 30 days.";
+"select_group" = "Select Group";
+"app_name" = "Belay is On";
+"sign_in_google" = "Sign in with Google";
+"check_again" = "Check Again";
+"error_siri_disabled" = "Siri and Dictation are disabled in Settings. Please enable them to use voice commands.";
