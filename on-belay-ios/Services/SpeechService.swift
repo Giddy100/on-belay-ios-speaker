@@ -14,20 +14,31 @@ class SpeechService: NSObject, ObservableObject {
     @Published var logs: [String] = []
     @Published var lastError: String?
 
-    private var wakeupPhrase = "Hey Moses"
+    private var wakeupPhrase = "hey moses"
+    private var wakeupWords = ["hey","moses"]
     private var isWaitingForCommand = false
     private var commandTimer: Timer?
 
     private var selectedGroup: Group?
     private var volume: Float = 1.0
-
+    
+    private var converter = BufferConverter()
+    
     func setup(wakeupPhrase: String, selectedGroup: Group?, volume: Float?) {
-        self.wakeupPhrase = wakeupPhrase
+        self.wakeupPhrase = wakeupPhrase.lowercased()
+        wakeupWords.removeAll()
+        let words = wakeupPhrase.split(separator: " ")
+        for word in words {
+            self.wakeupWords.append(String(word.lowercased()))
+        }
         self.selectedGroup = selectedGroup
         self.volume = volume ?? 1.0
     }
 
     func startListening() {
+        if (isListening){
+            return
+        }
         isListening = true
         print("SpeechService: Requesting authorization...")
         SFSpeechRecognizer.requestAuthorization { status in
@@ -35,7 +46,9 @@ class SpeechService: NSObject, ObservableObject {
                 print("SpeechService: Authorization status: \(status.rawValue)")
                 switch status {
                 case .authorized:
-                    self.doStartListening()
+                    Task {
+                        await self.doStartListening()
+                    }
                 default:
                     self.isListening = false
                     self.lastError = "Speech recognition not authorized"
@@ -57,7 +70,7 @@ class SpeechService: NSObject, ObservableObject {
         commandTimer?.invalidate()
     }
 
-    private func doStartListening() {
+    private func doStartListening() async {
         print("SpeechService: doStartListening called")
         guard !audioEngine.isRunning else {
             print("SpeechService: Audio engine already running")
@@ -71,17 +84,31 @@ class SpeechService: NSObject, ObservableObject {
             let recordingFormat = inputNode.outputFormat(forBus: 0)
             inputNode.removeTap(onBus: 0)
 
-            // Initialize the modern SpeechAnalyzer
-            let analyzer = try SpeechAnalyzer(audioFormat: recordingFormat)
-            self.analyzer = analyzer
+            guard let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "en-US")) else {
+                /* Note unsupported language */
+                print("English is not supported on this device")
+                return
+            }
+            let transcriber = SpeechTranscriber(locale: locale, preset: .transcription)
+            
+            if let installationRequest = try await AssetInventory.assetInstallationRequest(supporting: [transcriber]) {
+                try await installationRequest.downloadAndInstall()
+            }
+            
+            let (inputSequence, inputBuilder) = AsyncStream.makeStream(of: AnalyzerInput.self)
 
-            let transcriber = SpeechTranscriber()
+            let audioFormat = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [transcriber])
+            let analyzer = SpeechAnalyzer(modules: [transcriber])
+            
             let detector = SpeechDetector()
+
+            // Initialize the modern SpeechAnalyzer
+            self.analyzer = analyzer
 
             task = Task {
                 print("SpeechService: Starting analyzer results loop")
                 do {
-                    for await result in analyzer.results(modules: [transcriber, detector]) {
+                    for try await result in transcriber.results {
                         if Task.isCancelled { break }
                         self.handleAnalyzerResult(result)
                     }
@@ -98,13 +125,21 @@ class SpeechService: NSObject, ObservableObject {
                 }
             }
 
-            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self] buffer, _ in
-                self?.analyzer?.append(buffer)
+            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self]buffer, _ in
+                guard let audioFormat else { return }
+                do {
+                    let converted = try self!.converter.convertBuffer(buffer, to: audioFormat)
+                    inputBuilder.yield(AnalyzerInput(buffer: converted))
+                } catch {
+                    print("Exception when converting audio")
+                }
             }
 
             audioEngine.prepare()
             try audioEngine.start()
             print("SpeechService: Audio engine started")
+            
+            try await analyzer.start(inputSequence: inputSequence)
 
             isListening = true
             addLog(NSLocalizedString("waiting_wakeup", comment: ""))
@@ -118,28 +153,30 @@ class SpeechService: NSObject, ObservableObject {
 
     private func configureAudioSession() throws {
         let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetooth, .mixWithOthers])
+        try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .duckOthers])
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
     }
 
-    private func handleAnalyzerResult(_ result: SpeechAnalyzer.Result) {
-        if let transcription = result.transcription {
-            handleTranscription(transcription)
+    private func handleAnalyzerResult(_ result: SpeechTranscriber.Result) {
+        if result.isFinal {
+            handleTranscription(result.text)
         }
 
+        /*
         if let detection = result.speechDetection {
             if detection.isSpeechDetected {
                 print("SpeechService: Voice activity detected")
             }
         }
+         */
     }
 
-    private func handleTranscription(_ transcription: SpeechTranscriber.Result) {
-        let transcript = transcription.bestTranscription.formattedString.lowercased()
+    private func handleTranscription(_ transcription: AttributedString) {
+        let transcript = String(transcription.characters).lowercased()
         print("Speech transcription: \(transcript)")
 
         if !isWaitingForCommand {
-            if transcript.contains(wakeupPhrase.lowercased()) {
+            if isWakeupPhrase(transcript) {
                 addLog("Wakeup phrase '\(wakeupPhrase)' detected")
                 enterCommandMode()
             }
@@ -149,6 +186,15 @@ class SpeechService: NSObject, ObservableObject {
             }
         }
     }
+    
+    private func isWakeupPhrase(_ phrase: String) -> Bool {
+        if phrase.contains(wakeupPhrase) { return true }
+        for word in wakeupWords {
+            if !phrase.contains(word) { return false }
+        }
+        return true
+            
+    }
 
     private func enterCommandMode() {
         print("Entering command mode. Looking for commands...")
@@ -156,7 +202,7 @@ class SpeechService: NSObject, ObservableObject {
         addLog(NSLocalizedString("waiting_command", comment: ""))
 
         // Reset analyzer to get a clean transcript for the command
-        resetAnalyzer()
+        // resetAnalyzer()
 
         commandTimer?.invalidate()
         commandTimer = Timer.scheduledTimer(withTimeInterval: 8.0, repeats: false) { [weak self] _ in
@@ -187,8 +233,10 @@ class SpeechService: NSObject, ObservableObject {
             }
         }
 
-        resetAnalyzer()
-        addLog(NSLocalizedString("waiting_wakeup", comment: ""))
+        Task {
+            // await resetAnalyzer()
+            addLog(NSLocalizedString("waiting_wakeup", comment: ""))
+        }
     }
 
     private func handleCommandTimeout() {
@@ -196,35 +244,44 @@ class SpeechService: NSObject, ObservableObject {
             isWaitingForCommand = false
             addLog(NSLocalizedString("no_command", comment: ""))
             AudioService.shared.playSound("no_command.wav", volume: volume)
-            resetAnalyzer()
-            addLog(NSLocalizedString("waiting_wakeup", comment: ""))
+            Task {
+                // await resetAnalyzer()
+                addLog(NSLocalizedString("waiting_wakeup", comment: ""))
+            }
         }
     }
 
-    private func resetAnalyzer() {
+    private func resetAnalyzer() async {
         print("SpeechService: Resetting analyzer")
         task?.cancel()
         task = nil
         analyzer = nil
 
-        guard let inputNode = try? audioEngine.inputNode else { return }
-        let recordingFormat = inputNode.outputFormat(forBus: 0)
+        let inputNode = audioEngine.inputNode
 
         do {
-            let analyzer = try SpeechAnalyzer(audioFormat: recordingFormat)
+            guard let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "en-US")) else {
+                /* Note unsupported language */
+                print("English is not supported on this device")
+                return
+            }
+            let transcriber = SpeechTranscriber(locale: locale, preset: .transcription)
+            
+            let audioFormat = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [transcriber])
+            let analyzer = SpeechAnalyzer(modules: [transcriber])
             self.analyzer = analyzer
-
-            let transcriber = SpeechTranscriber()
             let detector = SpeechDetector()
 
             task = Task {
-                for await result in analyzer.results(modules: [transcriber, detector]) {
-                    if Task.isCancelled { break }
-                    self.handleAnalyzerResult(result)
+                do {
+                    for try await result in transcriber.results {
+                        if Task.isCancelled { break }
+                        self.handleAnalyzerResult(result)
+                    }
+                } catch {
+                    print("SpeechService: Error resetting analyzer: \(error.localizedDescription)")
                 }
             }
-        } catch {
-            print("SpeechService: Error resetting analyzer: \(error.localizedDescription)")
         }
     }
 
@@ -240,7 +297,9 @@ class SpeechService: NSObject, ObservableObject {
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             if self.isListening {
-                self.doStartListening()
+                Task {
+                    await self.doStartListening()
+                }
             }
         }
     }
@@ -266,7 +325,7 @@ class AudioService {
             // Use the current session instead of switching to .playback which might stop recording
             let audioSession = AVAudioSession.sharedInstance()
             if audioSession.category != .playAndRecord {
-                try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .allowBluetooth, .mixWithOthers])
+                try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .mixWithOthers])
                 try audioSession.setActive(true)
             }
 

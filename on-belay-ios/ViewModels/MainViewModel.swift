@@ -47,9 +47,8 @@ class MainViewModel: ObservableObject {
         )
     }
 
-    func toggleActive() {
+    func activeToggled() {
         guard selectedGroup != nil else { return }
-        isActive.toggle()
 
         Task {
             await firebase.setUserSettings(["isActive": isActive])

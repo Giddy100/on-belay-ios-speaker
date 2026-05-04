@@ -56,7 +56,7 @@ struct MainScreen: View {
                 Toggle(NSLocalizedString("active", comment: ""), isOn: $viewModel.isActive)
                     .disabled(viewModel.selectedGroupId.isEmpty)
                     .onChange(of: viewModel.isActive) { _, _ in
-                        viewModel.toggleActive()
+                        viewModel.activeToggled()
                     }
                     .padding(.horizontal)
 
@@ -64,7 +64,8 @@ struct MainScreen: View {
                 if viewModel.isActive {
                     ScrollView {
                         VStack(alignment: .leading) {
-                            ForEach(viewModel.speech.logs, id: \.self) { log in
+                            ForEach(viewModel.speech.logs.indices, id: \.self) { index in
+                                let log = viewModel.speech.logs[index]
                                 Text(log)
                                     .font(.system(.body, design: .monospaced))
                                     .padding(.vertical, 2)
