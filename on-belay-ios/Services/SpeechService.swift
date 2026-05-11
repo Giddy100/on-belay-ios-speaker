@@ -174,6 +174,13 @@ class SpeechService: NSObject, ObservableObject {
     private func handleTranscription(_ transcription: AttributedString) {
         let transcript = String(transcription.characters).lowercased()
         print("Speech transcription: \(transcript)")
+        if (transcript.isEmpty
+            || transcript.contains("it's moses")
+            || transcript.contains("no command")
+            || transcript.contains("unknown command")
+            ){
+            return
+        }
 
         if !isWaitingForCommand {
             if isWakeupPhrase(transcript) {
@@ -183,6 +190,8 @@ class SpeechService: NSObject, ObservableObject {
         } else {
             if let matchedPhrase = findMatchedPhrase(in: transcript) {
                 processCommand(matchedPhrase)
+            } else {
+                handleUnknownCommand()
             }
         }
     }
@@ -199,6 +208,7 @@ class SpeechService: NSObject, ObservableObject {
     private func enterCommandMode() {
         print("Entering command mode. Looking for commands...")
         isWaitingForCommand = true
+        AudioService.shared.playSound("its_moses.wav", volume: volume)
         addLog(NSLocalizedString("waiting_command", comment: ""))
 
         // Reset analyzer to get a clean transcript for the command
@@ -236,6 +246,15 @@ class SpeechService: NSObject, ObservableObject {
         Task {
             // await resetAnalyzer()
             addLog(NSLocalizedString("waiting_wakeup", comment: ""))
+        }
+    }
+
+    private func handleUnknownCommand() {
+        addLog(NSLocalizedString("unknown_command", comment: ""))
+        AudioService.shared.playSound("unknown_command.wav", volume: volume)
+        commandTimer?.invalidate()
+        commandTimer = Timer.scheduledTimer(withTimeInterval: 8.0, repeats: false) { [weak self] _ in
+            self?.handleCommandTimeout()
         }
     }
 
@@ -293,11 +312,12 @@ class SpeechService: NSObject, ObservableObject {
         audioEngine.inputNode.removeTap(onBus: 0)
         task?.cancel()
         task = nil
-        analyzer = nil
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1.0) {
             if self.isListening {
                 Task {
+                    await self.analyzer?.cancelAndFinishNow()
+                    self.analyzer = nil
                     await self.doStartListening()
                 }
             }

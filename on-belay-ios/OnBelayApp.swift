@@ -31,6 +31,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
                                 willPresent notification: UNNotification,
                                 withCompletionHandler completionHandler: @escaping (UNNotificationPresentationOptions) -> Void) {
         let userInfo = notification.request.content.userInfo
+        print("Push notification received with payload \(userInfo)")
 
         // Handle playing sound based on payload if app is in foreground
         if let soundFile = userInfo["iphoneFileId"] as? String {
@@ -44,6 +45,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 didReceive response: UNNotificationResponse,
                                 withCompletionHandler completionHandler: @escaping () -> Void) {
+        print("Push notification without notification payload")
         completionHandler()
     }
 }
