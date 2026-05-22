@@ -6,104 +6,170 @@ struct MainScreen: View {
     @State private var showingJoinGroup = false
     @State private var showingGroupSettings = false
     @State private var showingMainSettings = false
+    @State private var showingSwitchGroup = false
 
     var body: some View {
-        NavigationStack {
-            VStack(alignment: .leading, spacing: 16) {
-                // Header
-                Text(String(format: NSLocalizedString("welcome_user", comment: ""), viewModel.firebase.userSettings?.name ?? ""))
-                    .font(.caption)
-                    .padding(.horizontal)
+        ZStack {
+            Color.appBackground.ignoresSafeArea()
 
-                // Group Buttons
+            VStack(spacing: AppTheme.gutter) {
+                // Top bar
                 HStack {
-                    Button(action: { showingCreateGroup = true }) {
-                        Text(NSLocalizedString("create_group", comment: ""))
-                            .frame(maxWidth: .infinity)
+                    VStack(alignment: .leading, spacing: 4) {
+                        Text(String(format: NSLocalizedString("welcome_user", comment: ""), viewModel.firebase.userSettings?.name ?? ""))
+                            .font(.appBodySm())
+                            .foregroundColor(.appOnSurfaceVariant)
+                        Text(NSLocalizedString("app_name", comment: ""))
+                            .font(.appHeadlineMd())
+                            .foregroundColor(.appOnSurface)
                     }
-                    .buttonStyle(.borderedProminent)
-
-                    Button(action: { showingJoinGroup = true }) {
-                        Text(NSLocalizedString("join_group", comment: ""))
-                            .frame(maxWidth: .infinity)
+                    Spacer()
+                    Button(action: { showingMainSettings = true }) {
+                        Image(systemName: "gearshape.fill")
+                            .font(.title2)
+                            .foregroundColor(.appOnSurface)
                     }
-                    .buttonStyle(.borderedProminent)
                 }
-                .padding(.horizontal)
+                .padding(.horizontal, AppTheme.marginMobile)
+                .padding(.top, 8)
 
-                // Group Dropdown & Settings
-                HStack {
-                    Picker(NSLocalizedString("settings", comment: ""), selection: $viewModel.selectedGroupId) {
-                        Text(NSLocalizedString("select_group", comment: "")).tag("")
-                        ForEach(viewModel.firebase.userGroups) { group in
-                            Text(group.name).tag(group.groupId)
+                // Group Selector Card
+                Button(action: { showingSwitchGroup = true }) {
+                    HStack {
+                        VStack(alignment: .leading, spacing: 4) {
+                            Text(NSLocalizedString("select_group", comment: "").uppercased())
+                                .font(.appLabelCaps())
+                                .foregroundColor(.appActiveGreen)
+                            Text(viewModel.selectedGroup?.name ?? NSLocalizedString("select_group", comment: ""))
+                                .font(.appBodyLg())
+                                .foregroundColor(.appOnSurface)
+                        }
+                        Spacer()
+                        Image(systemName: "chevron.down")
+                            .foregroundColor(.appOnSurfaceVariant)
+                    }
+                    .appCard()
+                }
+                .padding(.horizontal, AppTheme.marginMobile)
+
+                // Quick Send Section
+                if viewModel.isActive {
+                    VStack(alignment: .leading, spacing: 12) {
+                        Text(NSLocalizedString("quick_send", comment: ""))
+                            .font(.appLabelCaps())
+                            .foregroundColor(.appOnSurfaceVariant)
+
+                        HStack {
+                            // Placeholder buttons for now as per instruction
+                            Button("ON BELAY") { }
+                                .buttonStyle(AppButtonStyle(variant: .secondary))
+                            Button("CLIMBING") { }
+                                .buttonStyle(AppButtonStyle(variant: .secondary))
                         }
                     }
-                    .pickerStyle(.menu)
                     .frame(maxWidth: .infinity, alignment: .leading)
-                    .onChange(of: viewModel.selectedGroupId) { _, newValue in
-                        viewModel.selectGroup(id: newValue)
-                    }
-
-                    Button(action: { showingGroupSettings = true }) {
-                        Image(systemName: "gearshape")
-                    }
-                    .disabled(viewModel.selectedGroupId.isEmpty)
+                    .padding(.horizontal, AppTheme.marginMobile)
                 }
-                .padding(.horizontal)
 
-                // Active Switch
-                Toggle(NSLocalizedString("active", comment: ""), isOn: $viewModel.isActive)
-                    .disabled(viewModel.selectedGroupId.isEmpty)
-                    .onChange(of: viewModel.isActive) { _, _ in
-                        viewModel.activeToggled()
+                // Main Toggle Button
+                Spacer()
+
+                Button(action: {
+                    viewModel.isActive.toggle()
+                    viewModel.activeToggled()
+                }) {
+                    ZStack {
+                        Circle()
+                            .fill(viewModel.isActive ? Color.appSafetyOrange : Color.appActiveGreen)
+                            .frame(width: 200, height: 200)
+                            .shadow(color: (viewModel.isActive ? Color.appSafetyOrange : Color.appActiveGreen).opacity(0.3), radius: 20)
+
+                        Text(viewModel.isActive ? NSLocalizedString("stop_listening", comment: "") : NSLocalizedString("start_listening", comment: ""))
+                            .font(.appLabelCaps())
+                            .foregroundColor(viewModel.isActive ? .white : .appGraniteGray)
+                            .multilineTextAlignment(.center)
+                            .frame(width: 120)
                     }
-                    .padding(.horizontal)
+                }
+                .disabled(viewModel.selectedGroupId.isEmpty)
+                .opacity(viewModel.selectedGroupId.isEmpty ? 0.5 : 1.0)
 
-                // Messages Area
-                if viewModel.isActive {
+                Spacer()
+
+                // Transcript Section
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack {
+                        Text(NSLocalizedString("transcript", comment: ""))
+                            .font(.appLabelCaps())
+                            .foregroundColor(.appOnSurfaceVariant)
+                        Spacer()
+                        if !viewModel.selectedGroupId.isEmpty {
+                            Button(action: { showingGroupSettings = true }) {
+                                Image(systemName: "info.circle")
+                                    .foregroundColor(.appOnSurfaceVariant)
+                            }
+                        }
+                    }
+
                     ScrollView {
-                        VStack(alignment: .leading) {
+                        VStack(alignment: .leading, spacing: 8) {
                             ForEach(viewModel.speech.logs.indices, id: \.self) { index in
-                                let log = viewModel.speech.logs[index]
-                                Text(log)
-                                    .font(.system(.body, design: .monospaced))
-                                    .padding(.vertical, 2)
+                                Text(viewModel.speech.logs[index])
+                                    .font(.system(size: 14, weight: .medium, design: .monospaced))
+                                    .foregroundColor(.appOnSurface)
+                                    .padding(.vertical, 4)
+                                    .padding(.horizontal, 12)
+                                    .background(Color.appSurfaceContainerHighest.opacity(0.5))
+                                    .cornerRadius(AppTheme.cornerRadiusSm)
                             }
                         }
                         .frame(maxWidth: .infinity, alignment: .leading)
                     }
-                    .frame(maxHeight: .infinity)
-                    .background(Color(.secondarySystemBackground))
-                    .cornerRadius(8)
-                    .padding(.horizontal)
-                } else {
-                    Spacer()
+                    .frame(height: 120)
+                    .padding(8)
+                    .background(Color.appSurfaceContainerLow)
+                    .cornerRadius(AppTheme.cornerRadiusMd)
                 }
+                .padding(.horizontal, AppTheme.marginMobile)
+                .padding(.bottom, 20)
 
-                // Main Settings Button
-                Button(action: { showingMainSettings = true }) {
-                    Text(NSLocalizedString("main_settings", comment: ""))
-                        .frame(maxWidth: .infinity)
+                // Join/Create Footer
+                HStack(spacing: 12) {
+                    Button(action: { showingCreateGroup = true }) {
+                        Label(NSLocalizedString("create", comment: ""), systemImage: "plus")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(AppButtonStyle(variant: .outline))
+
+                    Button(action: { showingJoinGroup = true }) {
+                        Label(NSLocalizedString("join", comment: ""), systemImage: "magnifyingglass")
+                            .frame(maxWidth: .infinity)
+                    }
+                    .buttonStyle(AppButtonStyle(variant: .outline))
                 }
-                .buttonStyle(.bordered)
-                .padding()
+                .padding(.horizontal, AppTheme.marginMobile)
+                .padding(.bottom, AppTheme.containerPadding)
             }
-            .navigationTitle(NSLocalizedString("app_name", comment: ""))
-            .sheet(isPresented: $showingCreateGroup) {
-                CreateGroupDialog(isPresented: $showingCreateGroup)
+
+            if showingSwitchGroup {
+                Color.black.opacity(0.5).ignoresSafeArea()
+                    .onTapGesture { showingSwitchGroup = false }
+                SwitchGroupDialog(viewModel: viewModel, isPresented: $showingSwitchGroup)
             }
-            .sheet(isPresented: $showingJoinGroup) {
-                JoinGroupDialog(isPresented: $showingJoinGroup)
+        }
+        .sheet(isPresented: $showingCreateGroup) {
+            CreateGroupDialog(isPresented: $showingCreateGroup)
+        }
+        .sheet(isPresented: $showingJoinGroup) {
+            JoinGroupDialog(isPresented: $showingJoinGroup)
+        }
+        .sheet(isPresented: $showingGroupSettings) {
+            if let group = viewModel.selectedGroup {
+                GroupSettingsDialog(isPresented: $showingGroupSettings, group: group)
             }
-            .sheet(isPresented: $showingGroupSettings) {
-                if let group = viewModel.selectedGroup {
-                    GroupSettingsDialog(isPresented: $showingGroupSettings, group: group)
-                }
-            }
-            .sheet(isPresented: $showingMainSettings) {
-                MainSettingsDialog(isPresented: $showingMainSettings)
-            }
+        }
+        .sheet(isPresented: $showingMainSettings) {
+            MainSettingsDialog(isPresented: $showingMainSettings)
         }
     }
 }

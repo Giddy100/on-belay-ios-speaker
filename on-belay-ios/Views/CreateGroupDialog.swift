@@ -8,49 +8,116 @@ struct CreateGroupDialog: View {
     @State private var startDate = Date()
     @State private var endDate = Date().addingTimeInterval(7 * 24 * 60 * 60)
     @State private var phrases: [Phrase] = []
-    @State private var showingPhrases = false
 
     var body: some View {
-        NavigationStack {
-            Form {
-                Section {
-                    TextField(NSLocalizedString("name", comment: ""), text: $name)
-                    TextField(NSLocalizedString("code", comment: ""), text: $code)
-                        .keyboardType(.numberPad)
-                        .onChange(of: code) { _, newValue in
-                            if newValue.count > 4 {
-                                code = String(newValue.prefix(4))
+        ZStack {
+            Color.appBackground.ignoresSafeArea()
+
+            VStack(spacing: 0) {
+                // Header
+                HStack {
+                    Button(action: { isPresented = false }) {
+                        Image(systemName: "arrow.left")
+                            .foregroundColor(.appActiveGreen)
+                            .font(.title3)
+                    }
+                    Text(NSLocalizedString("create_group", comment: ""))
+                        .font(.appHeadlineMd())
+                        .foregroundColor(.appOnSurface)
+                        .padding(.leading, 8)
+                    Spacer()
+                }
+                .padding(.horizontal, AppTheme.marginMobile)
+                .padding(.top, 20)
+                .padding(.bottom, 24)
+
+                ScrollView {
+                    VStack(alignment: .leading, spacing: 24) {
+                        // Name Input
+                        VStack(alignment: .leading, spacing: 8) {
+                            Text(NSLocalizedString("name", comment: "").uppercased())
+                                .font(.appLabelCaps())
+                                .foregroundColor(.appOnSurfaceVariant)
+                            TextField("", text: $name)
+                                .font(.appBodyLg())
+                                .foregroundColor(.appOnSurface)
+                                .padding()
+                                .background(Color.appSurfaceContainer)
+                                .cornerRadius(AppTheme.cornerRadiusMd)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMd)
+                                        .stroke(Color.appOutline.opacity(0.3), lineWidth: 1)
+                                )
+                        }
+
+                        // Security Code Input
+                        VStack(alignment: .center, spacing: 16) {
+                            Text(NSLocalizedString("security_code", comment: "").uppercased())
+                                .font(.appLabelCaps())
+                                .foregroundColor(.appOnSurfaceVariant)
+                            SecurityCodeInput(code: $code)
+                        }
+                        .frame(maxWidth: .infinity)
+
+                        // Dates
+                        HStack(spacing: 16) {
+                            VStack(alignment: .leading, spacing: 8) {
+                                Text(NSLocalizedString("start_date", comment: "").uppercased())
+                                    .font(.appLabelCaps())
+                                    .foregroundColor(.appOnSurfaceVariant)
+                                DatePicker("", selection: $startDate, displayedComponents: .date)
+                                    .labelsHidden()
+                                    .accentColor(.appActiveGreen)
+                            }
+                            Spacer()
+                            VStack(alignment: .trailing, spacing: 8) {
+                                Text(NSLocalizedString("end_date", comment: "").uppercased())
+                                    .font(.appLabelCaps())
+                                    .foregroundColor(.appOnSurfaceVariant)
+                                DatePicker("", selection: $endDate, displayedComponents: .date)
+                                    .labelsHidden()
+                                    .accentColor(.appActiveGreen)
                             }
                         }
-                }
+                        .padding()
+                        .background(Color.appSurfaceContainer)
+                        .cornerRadius(AppTheme.cornerRadiusMd)
 
-                Section {
-                    DatePicker(NSLocalizedString("start_date", comment: ""), selection: $startDate, displayedComponents: .date)
-                    DatePicker(NSLocalizedString("end_date", comment: ""), selection: $endDate, displayedComponents: .date)
-                }
+                        // Phrases
+                        VStack(alignment: .leading, spacing: 12) {
+                            Text(NSLocalizedString("select_phrases", comment: "").uppercased())
+                                .font(.appLabelCaps())
+                                .foregroundColor(.appOnSurfaceVariant)
 
-                Button(action: { showingPhrases = true }) {
-                    Text(NSLocalizedString("phrases", comment: ""))
-                }
-            }
-            .navigationTitle(NSLocalizedString("create_group", comment: ""))
-            .toolbar {
-                ToolbarItem(placement: .cancellationAction) {
-                    Button(NSLocalizedString("cancel", comment: "")) { isPresented = false }
-                }
-                ToolbarItem(placement: .confirmationAction) {
-                    Button(NSLocalizedString("create", comment: "")) {
-                        createGroup()
+                            FlowLayout(items: $phrases) { $phrase in
+                                Button(action: { phrase.selected.toggle() }) {
+                                    Text(phrase.name)
+                                        .font(.appLabelCaps())
+                                        .padding(.horizontal, 16)
+                                        .padding(.vertical, 8)
+                                        .background(phrase.selected ? Color.appActiveGreen : Color.appSurfaceContainerHighest)
+                                        .foregroundColor(phrase.selected ? Color.appGraniteGray : Color.appOnSurface)
+                                        .cornerRadius(AppTheme.cornerRadiusFull)
+                                }
+                            }
+                        }
+
+                        Spacer(minLength: 40)
+
+                        Button(action: createGroup) {
+                            Text(NSLocalizedString("create", comment: ""))
+                                .frame(maxWidth: .infinity)
+                        }
+                        .buttonStyle(AppButtonStyle(variant: .primary))
+                        .disabled(name.isEmpty || code.count != 4 || !isDateRangeValid)
+                        .padding(.bottom, 20)
                     }
-                    .disabled(name.isEmpty || code.count != 4 || !isDateRangeValid)
+                    .padding(.horizontal, AppTheme.marginMobile)
                 }
             }
-            .sheet(isPresented: $showingPhrases) {
-                PhrasesDialog(phrases: $phrases, isCreator: true)
-            }
-            .task {
-                phrases = await FirebaseService.shared.getDefaultPhrases()
-            }
+        }
+        .task {
+            phrases = await FirebaseService.shared.getDefaultPhrases()
         }
     }
 
@@ -76,5 +143,50 @@ struct CreateGroupDialog: View {
                 isPresented = false
             }
         }
+    }
+}
+
+struct FlowLayout: View {
+    @Binding var items: [Phrase]
+    let content: (Binding<Phrase>) -> AnyView
+
+    init<V: View>(items: Binding<[Phrase]>, @ViewBuilder content: @escaping (Binding<Phrase>) -> V) {
+        self._items = items
+        self.content = { Binding<Phrase> in AnyView(content(Binding<Phrase>)) }
+    }
+
+    var body: some View {
+        var width = CGFloat.zero
+        var height = CGFloat.zero
+
+        return GeometryReader { geo in
+            ZStack(alignment: .topLeading) {
+                ForEach(items.indices, id: \.self) { index in
+                    content($items[index])
+                        .padding([.horizontal, .vertical], 4)
+                        .alignmentGuide(.leading) { d in
+                            if (abs(width - d.width) > geo.size.width) {
+                                width = 0
+                                height -= d.height
+                            }
+                            let result = width
+                            if index == items.count - 1 {
+                                width = 0
+                            } else {
+                                width -= d.width
+                            }
+                            return result
+                        }
+                        .alignmentGuide(.top) { d in
+                            let result = height
+                            if index == items.count - 1 {
+                                height = 0
+                            }
+                            return result
+                        }
+                }
+            }
+        }
+        .frame(minHeight: 150) // Adjust as needed
     }
 }

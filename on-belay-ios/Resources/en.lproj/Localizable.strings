@@ -39,3 +39,14 @@
 "sign_in_google" = "Sign in with Google";
 "check_again" = "Check Again";
 "error_siri_disabled" = "Siri and Dictation are disabled in Settings. Please enable them to use voice commands.";
+"quick_send" = "QUICK SEND";
+"transcript" = "TRANSCRIPT";
+"start_listening" = "START LISTENING";
+"stop_listening" = "STOP LISTENING";
+"searching_active_signals" = "SEARCHING ACTIVE SIGNALS...";
+"results_for" = "RESULTS FOR \"%@\"";
+"select_phrases" = "SELECT PHRASES";
+"security_code" = "Security Code";
+"enter_security_code_desc" = "Enter the 4-digit code provided by the group leader to join \"%@\".";
+"confirm" = "Confirm";
+"by_author" = "by %@";
