@@ -89,15 +89,17 @@ struct CreateGroupDialog: View {
                                 .font(.appLabelCaps())
                                 .foregroundColor(.appOnSurfaceVariant)
 
-                            FlowLayout(items: $phrases) { $phrase in
-                                Button(action: { phrase.selected.toggle() }) {
-                                    Text(phrase.name)
-                                        .font(.appLabelCaps())
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 8)
-                                        .background(phrase.selected ? Color.appActiveGreen : Color.appSurfaceContainerHighest)
-                                        .foregroundColor(phrase.selected ? Color.appGraniteGray : Color.appOnSurface)
-                                        .cornerRadius(AppTheme.cornerRadiusFull)
+                            FlowLayout(spacing: 8) {
+                                ForEach($phrases) { $phrase in
+                                    Button(action: { phrase.selected.toggle() }) {
+                                        Text(phrase.name)
+                                            .font(.appLabelCaps())
+                                            .padding(.horizontal, 16)
+                                            .padding(.vertical, 8)
+                                            .background(phrase.selected ? Color.appActiveGreen : Color.appSurfaceContainerHighest)
+                                            .foregroundColor(phrase.selected ? Color.appGraniteGray : Color.appOnSurface)
+                                            .cornerRadius(AppTheme.cornerRadiusFull)
+                                    }
                                 }
                             }
                         }
@@ -143,50 +145,5 @@ struct CreateGroupDialog: View {
                 isPresented = false
             }
         }
-    }
-}
-
-struct FlowLayout: View {
-    @Binding var items: [Phrase]
-    let content: (Binding<Phrase>) -> AnyView
-
-    init<V: View>(items: Binding<[Phrase]>, @ViewBuilder content: @escaping (Binding<Phrase>) -> V) {
-        self._items = items
-        self.content = { Binding<Phrase> in AnyView(content(Binding<Phrase>)) }
-    }
-
-    var body: some View {
-        var width = CGFloat.zero
-        var height = CGFloat.zero
-
-        return GeometryReader { geo in
-            ZStack(alignment: .topLeading) {
-                ForEach(items.indices, id: \.self) { index in
-                    content($items[index])
-                        .padding([.horizontal, .vertical], 4)
-                        .alignmentGuide(.leading) { d in
-                            if (abs(width - d.width) > geo.size.width) {
-                                width = 0
-                                height -= d.height
-                            }
-                            let result = width
-                            if index == items.count - 1 {
-                                width = 0
-                            } else {
-                                width -= d.width
-                            }
-                            return result
-                        }
-                        .alignmentGuide(.top) { d in
-                            let result = height
-                            if index == items.count - 1 {
-                                height = 0
-                            }
-                            return result
-                        }
-                }
-            }
-        }
-        .frame(minHeight: 150) // Adjust as needed
     }
 }

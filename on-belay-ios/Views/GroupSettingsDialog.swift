@@ -114,19 +114,23 @@ struct GroupSettingsDialog: View {
                                 .font(.appLabelCaps())
                                 .foregroundColor(.appOnSurfaceVariant)
 
-                            FlowLayout(items: Binding($group.phrases)!) { $phrase in
-                                Button(action: {
-                                    if isCreator {
-                                        phrase.selected.toggle()
+                            if group.phrases != nil {
+                                FlowLayout(spacing: 8) {
+                                    ForEach(Binding($group.phrases)!) { $phrase in
+                                        Button(action: {
+                                            if isCreator {
+                                                phrase.selected.toggle()
+                                            }
+                                        }) {
+                                            Text(phrase.name)
+                                                .font(.appLabelCaps())
+                                                .padding(.horizontal, 16)
+                                                .padding(.vertical, 8)
+                                                .background(phrase.selected ? Color.appActiveGreen : Color.appSurfaceContainerHighest)
+                                                .foregroundColor(phrase.selected ? Color.appGraniteGray : Color.appOnSurface)
+                                                .cornerRadius(AppTheme.cornerRadiusFull)
+                                        }
                                     }
-                                }) {
-                                    Text(phrase.name)
-                                        .font(.appLabelCaps())
-                                        .padding(.horizontal, 16)
-                                        .padding(.vertical, 8)
-                                        .background(phrase.selected ? Color.appActiveGreen : Color.appSurfaceContainerHighest)
-                                        .foregroundColor(phrase.selected ? Color.appGraniteGray : Color.appOnSurface)
-                                        .cornerRadius(AppTheme.cornerRadiusFull)
                                 }
                             }
                         }
