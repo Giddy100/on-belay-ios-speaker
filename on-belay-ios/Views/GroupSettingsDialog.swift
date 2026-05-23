@@ -83,6 +83,7 @@ struct GroupSettingsDialog: View {
                                     ), displayedComponents: .date)
                                         .labelsHidden()
                                         .accentColor(.appActiveGreen)
+                                        .colorMultiply(.appActiveGreen)
                                 }
                                 Spacer()
                                 VStack(alignment: .trailing, spacing: 8) {
@@ -95,6 +96,7 @@ struct GroupSettingsDialog: View {
                                     ), displayedComponents: .date)
                                         .labelsHidden()
                                         .accentColor(.appActiveGreen)
+                                        .colorMultiply(.appActiveGreen)
                                 }
                             }
                             .padding()
@@ -143,7 +145,7 @@ struct GroupSettingsDialog: View {
                                     .frame(maxWidth: .infinity)
                             }
                             .buttonStyle(AppButtonStyle(variant: .primary))
-                            .disabled(group.name.isEmpty || (group.code?.count ?? 0) != 4)
+                            .disabled(!isFormValid)
                         }
 
                         Button(action: {
@@ -171,6 +173,18 @@ struct GroupSettingsDialog: View {
             Button(NSLocalizedString("yes", comment: ""), role: .destructive) { leaveGroup() }
             Button(NSLocalizedString("no", comment: ""), role: .cancel) {}
         }
+    }
+
+    var isDateRangeValid: Bool {
+        let diff = group.endAsDate.timeIntervalSince(group.startAsDate)
+        return diff >= 0 && diff <= 30 * 24 * 60 * 60
+    }
+
+    var isFormValid: Bool {
+        !group.name.isEmpty &&
+        (group.code?.count ?? 0) == 4 &&
+        isDateRangeValid &&
+        (group.phrases?.contains { $0.selected } ?? false)
     }
 
     func formatDate(_ date: Date) -> String {

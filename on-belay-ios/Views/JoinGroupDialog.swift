@@ -153,6 +153,8 @@ struct CodeEntryDialog: View {
                 .font(.appBodySm())
                 .foregroundColor(.appOnSurfaceVariant)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 16)
 
             SecurityCodeInput(code: $code)
                 .padding(.vertical, 8)

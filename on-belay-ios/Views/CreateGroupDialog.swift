@@ -65,18 +65,22 @@ struct CreateGroupDialog: View {
                                 Text(NSLocalizedString("start_date", comment: "").uppercased())
                                     .font(.appLabelCaps())
                                     .foregroundColor(.appOnSurfaceVariant)
+
                                 DatePicker("", selection: $startDate, displayedComponents: .date)
                                     .labelsHidden()
                                     .accentColor(.appActiveGreen)
+                                    .colorMultiply(.appActiveGreen) // Force neon green
                             }
                             Spacer()
                             VStack(alignment: .trailing, spacing: 8) {
                                 Text(NSLocalizedString("end_date", comment: "").uppercased())
                                     .font(.appLabelCaps())
                                     .foregroundColor(.appOnSurfaceVariant)
+
                                 DatePicker("", selection: $endDate, displayedComponents: .date)
                                     .labelsHidden()
                                     .accentColor(.appActiveGreen)
+                                    .colorMultiply(.appActiveGreen) // Force neon green
                             }
                         }
                         .padding()
@@ -111,7 +115,7 @@ struct CreateGroupDialog: View {
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(AppButtonStyle(variant: .primary))
-                        .disabled(name.isEmpty || code.count != 4 || !isDateRangeValid)
+                        .disabled(!isFormValid)
                         .padding(.bottom, 20)
                     }
                     .padding(.horizontal, AppTheme.marginMobile)
@@ -125,7 +129,14 @@ struct CreateGroupDialog: View {
 
     var isDateRangeValid: Bool {
         let diff = endDate.timeIntervalSince(startDate)
-        return diff > 0 && diff <= 30 * 24 * 60 * 60
+        return diff >= 0 && diff <= 30 * 24 * 60 * 60
+    }
+
+    var isFormValid: Bool {
+        !name.isEmpty &&
+        code.count == 4 &&
+        isDateRangeValid &&
+        phrases.contains { $0.selected }
     }
 
     func createGroup() {

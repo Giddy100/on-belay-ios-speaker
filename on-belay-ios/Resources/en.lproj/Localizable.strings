@@ -35,7 +35,9 @@
 "open_settings" = "Open Settings";
 "error_date_range" = "Date range cannot exceed 30 days.";
 "select_group" = "Select Group";
+"active_group" = "Active Group";
 "app_name" = "Belay is On";
+"logged_in_as" = "LOGGED IN AS:";
 "sign_in_google" = "Sign in with Google";
 "check_again" = "Check Again";
 "error_siri_disabled" = "Siri and Dictation are disabled in Settings. Please enable them to use voice commands.";
@@ -43,6 +45,8 @@
 "transcript" = "TRANSCRIPT";
 "start_listening" = "START LISTENING";
 "stop_listening" = "STOP LISTENING";
+"activate_session" = "ACTIVATE SESSION";
+"deactivate_session" = "DEACTIVATE SESSION";
 "searching_active_signals" = "SEARCHING ACTIVE SIGNALS...";
 "results_for" = "RESULTS FOR \"%@\"";
 "select_phrases" = "SELECT PHRASES";

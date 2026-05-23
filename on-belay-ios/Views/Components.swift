@@ -46,9 +46,6 @@ struct SecurityCodeInput: View {
                 }
             }
         }
-        .onAppear {
-            isTextFieldFocused = true
-        }
     }
 
     private var currentFocusIndex: Int {
@@ -74,6 +71,8 @@ struct AppButtonStyle: ButtonStyle {
         case destructive
     }
 
+    @Environment(\.isEnabled) private var isEnabled
+
     func makeBody(configuration: Configuration) -> some View {
         configuration.label
             .font(.appLabelCaps())
@@ -90,6 +89,9 @@ struct AppButtonStyle: ButtonStyle {
     }
 
     private func backgroundColor(_ isPressed: Bool) -> Color {
+        if !isEnabled && variant == .primary {
+            return Color.appSurfaceContainerHighest
+        }
         switch variant {
         case .primary: return Color.appActiveGreen
         case .secondary: return Color.appSurfaceContainerHighest
