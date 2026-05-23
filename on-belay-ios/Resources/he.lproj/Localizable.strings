@@ -39,3 +39,14 @@
 "sign_in_google" = "התחבר עם Google";
 "check_again" = "בדוק שוב";
 "error_siri_disabled" = "Siri והכתבה מושבתים בהגדרות. אנא הפעל אותם כדי להשתמש בפקודות קוליות.";
+"quick_send" = "שליחה מהירה";
+"transcript" = "תמלול";
+"start_listening" = "התחל להקשיב";
+"stop_listening" = "הפסק להקשיב";
+"searching_active_signals" = "מחפש אותות פעילים...";
+"results_for" = "תוצאות עבור \"%@\"";
+"select_phrases" = "בחר ביטויים";
+"security_code" = "קוד אבטחה";
+"enter_security_code_desc" = "הזן את הקוד בן 4 הספרות שסופק על ידי מנהל הקבוצה כדי להצטרף ל-\"%@\".";
+"confirm" = "אישור";
+"by_author" = "על ידי %@";
