@@ -7,6 +7,7 @@ struct MainScreen: View {
     @State private var showingGroupSettings = false
     @State private var showingMainSettings = false
     @State private var showingSwitchGroup = false
+    @State private var showingQuickSend = false
 
     var body: some View {
         ZStack {
@@ -67,19 +68,21 @@ struct MainScreen: View {
                                 .foregroundColor(.appActiveGreen)
                         }
                         Spacer()
-                        Button(action: { /* Quick Send Action */ }) {
-                            HStack(spacing: 4) {
-                                Image(systemName: "paperplane")
-                                Text(NSLocalizedString("quick_send", comment: ""))
+                        if !viewModel.selectedGroupId.isEmpty {
+                            Button(action: { showingQuickSend = true }) {
+                                HStack(spacing: 4) {
+                                    Image(systemName: "paperplane")
+                                    Text(NSLocalizedString("quick_send", comment: ""))
+                                }
+                                .font(.appLabelCaps())
+                                .padding(.horizontal, 12)
+                                .padding(.vertical, 6)
+                                .overlay(
+                                    RoundedRectangle(cornerRadius: AppTheme.cornerRadiusFull)
+                                        .stroke(Color.appActiveGreen, lineWidth: 1)
+                                )
+                                .foregroundColor(.appActiveGreen)
                             }
-                            .font(.appLabelCaps())
-                            .padding(.horizontal, 12)
-                            .padding(.vertical, 6)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: AppTheme.cornerRadiusFull)
-                                    .stroke(Color.appActiveGreen, lineWidth: 1)
-                            )
-                            .foregroundColor(.appActiveGreen)
                         }
                     }
 
@@ -203,6 +206,12 @@ struct MainScreen: View {
                 Color.black.opacity(0.5).ignoresSafeArea()
                     .onTapGesture { showingSwitchGroup = false }
                 SwitchGroupDialog(viewModel: viewModel, isPresented: $showingSwitchGroup)
+            }
+
+            if showingQuickSend, let group = viewModel.selectedGroup {
+                QuickSendDialog(isPresented: $showingQuickSend, group: group)
+                    .transition(.move(edge: .bottom))
+                    .zIndex(1)
             }
         }
         .sheet(isPresented: $showingCreateGroup) {

@@ -66,10 +66,17 @@ struct CreateGroupDialog: View {
                                     .font(.appLabelCaps())
                                     .foregroundColor(.appOnSurfaceVariant)
 
-                                DatePicker("", selection: $startDate, displayedComponents: .date)
-                                    .labelsHidden()
-                                    .accentColor(.appActiveGreen)
-                                    .colorMultiply(.appActiveGreen) // Force neon green
+                                ZStack(alignment: .leading) {
+                                    DatePicker("", selection: $startDate, displayedComponents: .date)
+                                        .labelsHidden()
+                                        .accentColor(.appActiveGreen)
+                                        .opacity(0.011)
+
+                                    Text(formatDate(startDate))
+                                        .font(.appBodyLg())
+                                        .foregroundColor(.appActiveGreen)
+                                        .allowsHitTesting(false)
+                                }
                             }
                             Spacer()
                             VStack(alignment: .trailing, spacing: 8) {
@@ -77,10 +84,17 @@ struct CreateGroupDialog: View {
                                     .font(.appLabelCaps())
                                     .foregroundColor(.appOnSurfaceVariant)
 
-                                DatePicker("", selection: $endDate, displayedComponents: .date)
-                                    .labelsHidden()
-                                    .accentColor(.appActiveGreen)
-                                    .colorMultiply(.appActiveGreen) // Force neon green
+                                ZStack(alignment: .trailing) {
+                                    DatePicker("", selection: $endDate, displayedComponents: .date)
+                                        .labelsHidden()
+                                        .accentColor(.appActiveGreen)
+                                        .opacity(0.011)
+
+                                    Text(formatDate(endDate))
+                                        .font(.appBodyLg())
+                                        .foregroundColor(.appActiveGreen)
+                                        .allowsHitTesting(false)
+                                }
                             }
                         }
                         .padding()
@@ -137,6 +151,12 @@ struct CreateGroupDialog: View {
         code.count == 4 &&
         isDateRangeValid &&
         phrases.contains { $0.selected }
+    }
+
+    func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd MMM yyyy"
+        return formatter.string(from: date)
     }
 
     func createGroup() {

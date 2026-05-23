@@ -77,26 +77,42 @@ struct GroupSettingsDialog: View {
                                     Text(NSLocalizedString("start_date", comment: "").uppercased())
                                         .font(.appLabelCaps())
                                         .foregroundColor(.appOnSurfaceVariant)
-                                    DatePicker("", selection: Binding(
-                                        get: { group.startAsDate },
-                                        set: { group.startDate = $0.timeIntervalSince1970 * 1000 }
-                                    ), displayedComponents: .date)
-                                        .labelsHidden()
-                                        .accentColor(.appActiveGreen)
-                                        .colorMultiply(.appActiveGreen)
+
+                                    ZStack(alignment: .leading) {
+                                        DatePicker("", selection: Binding(
+                                            get: { group.startAsDate },
+                                            set: { group.startDate = $0.timeIntervalSince1970 * 1000 }
+                                        ), displayedComponents: .date)
+                                            .labelsHidden()
+                                            .accentColor(.appActiveGreen)
+                                            .opacity(0.011)
+
+                                        Text(formatDate(group.startAsDate))
+                                            .font(.appBodyLg())
+                                            .foregroundColor(.appActiveGreen)
+                                            .allowsHitTesting(false)
+                                    }
                                 }
                                 Spacer()
                                 VStack(alignment: .trailing, spacing: 8) {
                                     Text(NSLocalizedString("end_date", comment: "").uppercased())
                                         .font(.appLabelCaps())
                                         .foregroundColor(.appOnSurfaceVariant)
-                                    DatePicker("", selection: Binding(
-                                        get: { group.endAsDate },
-                                        set: { group.endDate = $0.timeIntervalSince1970 * 1000 }
-                                    ), displayedComponents: .date)
-                                        .labelsHidden()
-                                        .accentColor(.appActiveGreen)
-                                        .colorMultiply(.appActiveGreen)
+
+                                    ZStack(alignment: .trailing) {
+                                        DatePicker("", selection: Binding(
+                                            get: { group.endAsDate },
+                                            set: { group.endDate = $0.timeIntervalSince1970 * 1000 }
+                                        ), displayedComponents: .date)
+                                            .labelsHidden()
+                                            .accentColor(.appActiveGreen)
+                                            .opacity(0.011)
+
+                                        Text(formatDate(group.endAsDate))
+                                            .font(.appBodyLg())
+                                            .foregroundColor(.appActiveGreen)
+                                            .allowsHitTesting(false)
+                                    }
                                 }
                             }
                             .padding()
@@ -107,7 +123,7 @@ struct GroupSettingsDialog: View {
                                         formatDate(group.startAsDate),
                                         formatDate(group.endAsDate)))
                                 .font(.appBodySm())
-                                .foregroundColor(.appOnSurfaceVariant)
+                                .foregroundColor(.appActiveGreen)
                         }
 
                         // Phrases
@@ -189,7 +205,7 @@ struct GroupSettingsDialog: View {
 
     func formatDate(_ date: Date) -> String {
         let formatter = DateFormatter()
-        formatter.dateStyle = .medium
+        formatter.dateFormat = "dd MMM yyyy"
         return formatter.string(from: date)
     }
 

@@ -41,7 +41,9 @@
 "sign_in_google" = "Sign in with Google";
 "check_again" = "Check Again";
 "error_siri_disabled" = "Siri and Dictation are disabled in Settings. Please enable them to use voice commands.";
+"live_monitor" = "LIVE MONITOR";
 "quick_send" = "QUICK SEND";
+"quick_send_command" = "Quick Send Command";
 "transcript" = "TRANSCRIPT";
 "start_listening" = "START LISTENING";
 "stop_listening" = "STOP LISTENING";
