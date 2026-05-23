@@ -28,24 +28,18 @@ struct QuickSendDialog: View {
 
                     ScrollView {
                         VStack(spacing: 12) {
-                            let phrases = selectedPhrases
-                            ForEach(0..<phrases.count, id: \.self) { index in
-                                let phrase = phrases[index]
+                            ForEach(selectedPhrases) { phrase in
                                 Button(action: {
                                     sendPhrase(phrase)
                                 }) {
                                     Text(phrase.name)
                                         .font(.appHeadlineMd())
                                         .italic()
-                                        .foregroundColor(index == 0 ? Color.appGraniteGray : .white)
+                                        .foregroundColor(Color.appGraniteGray)
                                         .frame(maxWidth: .infinity)
                                         .padding(.vertical, 16)
-                                        .background(index == 0 ? Color.appActiveGreen : Color.appSurfaceContainerHighest)
+                                        .background(Color.appActiveGreen)
                                         .cornerRadius(AppTheme.cornerRadiusMd)
-                                        .overlay(
-                                            RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMd)
-                                                .stroke(index == 0 ? Color.clear : Color.appOutline.opacity(0.2), lineWidth: 1)
-                                        )
                                 }
                             }
                         }

@@ -68,7 +68,7 @@ struct MainScreen: View {
                                 .foregroundColor(.appActiveGreen)
                         }
                         Spacer()
-                        if !viewModel.selectedGroupId.isEmpty {
+                        if !viewModel.selectedGroupId.isEmpty && viewModel.isActive {
                             Button(action: { showingQuickSend = true }) {
                                 HStack(spacing: 4) {
                                     Image(systemName: "paperplane")

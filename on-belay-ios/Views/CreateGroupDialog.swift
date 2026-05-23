@@ -66,17 +66,15 @@ struct CreateGroupDialog: View {
                                     .font(.appLabelCaps())
                                     .foregroundColor(.appOnSurfaceVariant)
 
-                                ZStack(alignment: .leading) {
-                                    DatePicker("", selection: $startDate, displayedComponents: .date)
-                                        .labelsHidden()
-                                        .accentColor(.appActiveGreen)
-                                        .opacity(0.011)
-
-                                    Text(formatDate(startDate))
-                                        .font(.appBodyLg())
-                                        .foregroundColor(.appActiveGreen)
-                                        .allowsHitTesting(false)
-                                }
+                                Text(formatDate(startDate))
+                                    .font(.appBodyLg())
+                                    .foregroundColor(.appActiveGreen)
+                                    .overlay(
+                                        DatePicker("", selection: $startDate, displayedComponents: .date)
+                                            .labelsHidden()
+                                            .accentColor(.appActiveGreen)
+                                            .opacity(0.011)
+                                    )
                             }
                             Spacer()
                             VStack(alignment: .trailing, spacing: 8) {
@@ -84,17 +82,15 @@ struct CreateGroupDialog: View {
                                     .font(.appLabelCaps())
                                     .foregroundColor(.appOnSurfaceVariant)
 
-                                ZStack(alignment: .trailing) {
-                                    DatePicker("", selection: $endDate, displayedComponents: .date)
-                                        .labelsHidden()
-                                        .accentColor(.appActiveGreen)
-                                        .opacity(0.011)
-
-                                    Text(formatDate(endDate))
-                                        .font(.appBodyLg())
-                                        .foregroundColor(.appActiveGreen)
-                                        .allowsHitTesting(false)
-                                }
+                                Text(formatDate(endDate))
+                                    .font(.appBodyLg())
+                                    .foregroundColor(.appActiveGreen)
+                                    .overlay(
+                                        DatePicker("", selection: $endDate, displayedComponents: .date)
+                                            .labelsHidden()
+                                            .accentColor(.appActiveGreen)
+                                            .opacity(0.011)
+                                    )
                             }
                         }
                         .padding()
