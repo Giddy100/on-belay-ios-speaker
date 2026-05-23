@@ -66,15 +66,17 @@ struct CreateGroupDialog: View {
                                     .font(.appLabelCaps())
                                     .foregroundColor(.appOnSurfaceVariant)
 
-                                Text(formatDate(startDate))
-                                    .font(.appBodyLg())
-                                    .foregroundColor(.appActiveGreen)
-                                    .overlay(
-                                        DatePicker("", selection: $startDate, displayedComponents: .date)
-                                            .labelsHidden()
-                                            .accentColor(.appActiveGreen)
-                                            .opacity(0.011)
-                                    )
+                                ZStack(alignment: .leading) {
+                                    Text(formatDate(startDate))
+                                        .font(.appBodyLg())
+                                        .foregroundColor(.appActiveGreen)
+
+                                    DatePicker("", selection: $startDate, displayedComponents: .date)
+                                        .labelsHidden()
+                                        .accentColor(.appActiveGreen)
+                                        .opacity(0.011)
+                                        .scaleEffect(1.5) // Enlarged hit area
+                                }
                             }
                             Spacer()
                             VStack(alignment: .trailing, spacing: 8) {
@@ -82,15 +84,17 @@ struct CreateGroupDialog: View {
                                     .font(.appLabelCaps())
                                     .foregroundColor(.appOnSurfaceVariant)
 
-                                Text(formatDate(endDate))
-                                    .font(.appBodyLg())
-                                    .foregroundColor(.appActiveGreen)
-                                    .overlay(
-                                        DatePicker("", selection: $endDate, displayedComponents: .date)
-                                            .labelsHidden()
-                                            .accentColor(.appActiveGreen)
-                                            .opacity(0.011)
-                                    )
+                                ZStack(alignment: .trailing) {
+                                    Text(formatDate(endDate))
+                                        .font(.appBodyLg())
+                                        .foregroundColor(.appActiveGreen)
+
+                                    DatePicker("", selection: $endDate, displayedComponents: .date)
+                                        .labelsHidden()
+                                        .accentColor(.appActiveGreen)
+                                        .opacity(0.011)
+                                        .scaleEffect(1.5) // Enlarged hit area
+                                }
                             }
                         }
                         .padding()

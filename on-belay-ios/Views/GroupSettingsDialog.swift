@@ -78,18 +78,20 @@ struct GroupSettingsDialog: View {
                                         .font(.appLabelCaps())
                                         .foregroundColor(.appOnSurfaceVariant)
 
-                                    Text(formatDate(group.startAsDate))
-                                        .font(.appBodyLg())
-                                        .foregroundColor(.appActiveGreen)
-                                        .overlay(
-                                            DatePicker("", selection: Binding(
-                                                get: { group.startAsDate },
-                                                set: { group.startDate = $0.timeIntervalSince1970 * 1000 }
-                                            ), displayedComponents: .date)
-                                                .labelsHidden()
-                                                .accentColor(.appActiveGreen)
-                                                .opacity(0.011)
-                                        )
+                                    ZStack(alignment: .leading) {
+                                        Text(formatDate(group.startAsDate))
+                                            .font(.appBodyLg())
+                                            .foregroundColor(.appActiveGreen)
+
+                                        DatePicker("", selection: Binding(
+                                            get: { group.startAsDate },
+                                            set: { group.startDate = $0.timeIntervalSince1970 * 1000 }
+                                        ), displayedComponents: .date)
+                                            .labelsHidden()
+                                            .accentColor(.appActiveGreen)
+                                            .opacity(0.011)
+                                            .scaleEffect(1.5) // Enlarged hit area
+                                    }
                                 }
                                 Spacer()
                                 VStack(alignment: .trailing, spacing: 8) {
@@ -97,18 +99,20 @@ struct GroupSettingsDialog: View {
                                         .font(.appLabelCaps())
                                         .foregroundColor(.appOnSurfaceVariant)
 
-                                    Text(formatDate(group.endAsDate))
-                                        .font(.appBodyLg())
-                                        .foregroundColor(.appActiveGreen)
-                                        .overlay(
-                                            DatePicker("", selection: Binding(
-                                                get: { group.endAsDate },
-                                                set: { group.endDate = $0.timeIntervalSince1970 * 1000 }
-                                            ), displayedComponents: .date)
-                                                .labelsHidden()
-                                                .accentColor(.appActiveGreen)
-                                                .opacity(0.011)
-                                        )
+                                    ZStack(alignment: .trailing) {
+                                        Text(formatDate(group.endAsDate))
+                                            .font(.appBodyLg())
+                                            .foregroundColor(.appActiveGreen)
+
+                                        DatePicker("", selection: Binding(
+                                            get: { group.endAsDate },
+                                            set: { group.endDate = $0.timeIntervalSince1970 * 1000 }
+                                        ), displayedComponents: .date)
+                                            .labelsHidden()
+                                            .accentColor(.appActiveGreen)
+                                            .opacity(0.011)
+                                            .scaleEffect(1.5) // Enlarged hit area
+                                    }
                                 }
                             }
                             .padding()
