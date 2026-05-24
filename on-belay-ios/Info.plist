@@ -14,5 +14,16 @@
 		<string>JetBrainsMono-Regular.ttf</string>
 		<string>JetBrainsMono-Bold.ttf</string>
 	</array>
+	<key>CFBundleURLTypes</key>
+	<array>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1049936970203-68dubs3uts841lhthobg044so3qmpu95</string>
+			</array>
+		</dict>
+	</array>
 </dict>
 </plist>

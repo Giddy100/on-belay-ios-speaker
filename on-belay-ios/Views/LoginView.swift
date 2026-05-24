@@ -1,6 +1,8 @@
 import SwiftUI
 import FirebaseAuth
 import AuthenticationServices
+import GoogleSignIn
+import GoogleSignInSwift
 
 struct LoginView: View {
     @ObservedObject var firebase = FirebaseService.shared
@@ -23,17 +25,9 @@ struct LoginView: View {
             // specific setup in Xcode and Info.plist (URL schemes, etc.)
             // Here we provide the logic flow using Firebase.
 
-            Button(action: signInWithGoogle) {
-                HStack {
-                    Image(systemName: "g.circle.fill")
-                    Text(NSLocalizedString("sign_in_google", comment: ""))
-                }
-                .frame(maxWidth: .infinity)
-                .padding()
-                .background(Color.blue)
-                .foregroundColor(.white)
-                .cornerRadius(10)
-            }
+            GoogleSignInButton(action: signInWithGoogle)
+                .frame(height: 50)
+                .padding(.horizontal)
 
             SignInWithAppleButton(
                 .signIn,
@@ -52,11 +46,40 @@ struct LoginView: View {
     }
 
     func signInWithGoogle() {
-        // In a real app, you'd use GoogleSignIn SDK to get an ID token
-        // and then:
-        // let credential = GoogleAuthProvider.credential(withIDToken: idToken, accessToken: accessToken)
-        // Auth.auth().signIn(with: credential)
-        print("Google Sign In clicked")
+        guard let topViewController = UIApplication.shared.connectedScenes
+            .compactMap({ $0 as? UIWindowScene })
+            .flatMap({ $0.windows })
+            .first(where: { $0.isKeyWindow })?.rootViewController else {
+            return
+        }
+
+        GIDSignIn.sharedInstance.signIn(withPresenting: topViewController) { result, error in
+            if let error = error {
+                print("Error signing in with Google: \(error.localizedDescription)")
+                return
+            }
+
+            guard let user = result?.user,
+                  let idToken = user.idToken?.tokenString else {
+                return
+            }
+
+            let credential = GoogleAuthProvider.credential(withIDToken: idToken,
+                                                         accessToken: user.accessToken.tokenString)
+
+            Auth.auth().signIn(with: credential) { _, error in
+                if let error = error {
+                    print("Error signing in with Firebase (Google): \(error.localizedDescription)")
+                    return
+                }
+
+                if let fullName = user.profile?.name {
+                    Task {
+                        await firebase.setUserSettings(["name": fullName])
+                    }
+                }
+            }
+        }
     }
 
     func handleAppleSignIn(result: Result<ASAuthorization, Error>) {
