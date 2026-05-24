@@ -54,10 +54,19 @@ struct PermissionGuardView<Content: View>: View {
 
     func checkPermissions() {
         // Microphone
-        hasMicrophonePermission = AVAudioSession.sharedInstance().recordPermission == .granted
-        if !hasMicrophonePermission {
-            AVAudioSession.sharedInstance().requestRecordPermission { _ in
-                checkPermissions()
+        if #available(iOS 17.0, *) {
+            hasMicrophonePermission = AVAudioApplication.shared.recordPermission == .granted
+            if !hasMicrophonePermission {
+                AVAudioApplication.requestRecordPermission { _ in
+                    checkPermissions()
+                }
+            }
+        } else {
+            hasMicrophonePermission = AVAudioSession.sharedInstance().recordPermission == .granted
+            if !hasMicrophonePermission {
+                AVAudioSession.sharedInstance().requestRecordPermission { _ in
+                    checkPermissions()
+                }
             }
         }
 

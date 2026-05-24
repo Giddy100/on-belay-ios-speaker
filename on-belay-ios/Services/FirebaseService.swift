@@ -17,7 +17,7 @@ class FirebaseService: NSObject, ObservableObject {
 
     private override init() {
         super.init()
-        Auth.auth().addStateDidChangeListener { [weak self] _, user in
+        _ = Auth.auth().addStateDidChangeListener { [weak self] _, user in
             self?.currentUser = user
             if user != nil {
                 self?.refreshUserData()

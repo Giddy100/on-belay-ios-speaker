@@ -80,9 +80,8 @@ class SpeechService: NSObject, ObservableObject {
         do {
             try configureAudioSession()
 
-            let inputNode = audioEngine.inputNode
-            let recordingFormat = inputNode.outputFormat(forBus: 0)
-            inputNode.removeTap(onBus: 0)
+            let recordingFormat = audioEngine.inputNode.outputFormat(forBus: 0)
+            audioEngine.inputNode.removeTap(onBus: 0)
 
             guard let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "en-US")) else {
                 /* Note unsupported language */
@@ -100,8 +99,6 @@ class SpeechService: NSObject, ObservableObject {
             let audioFormat = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [transcriber])
             let analyzer = SpeechAnalyzer(modules: [transcriber])
             
-            let detector = SpeechDetector()
-
             // Initialize the modern SpeechAnalyzer
             self.analyzer = analyzer
 
@@ -125,7 +122,7 @@ class SpeechService: NSObject, ObservableObject {
                 }
             }
 
-            inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self]buffer, _ in
+            audioEngine.inputNode.installTap(onBus: 0, bufferSize: 1024, format: recordingFormat) { [weak self]buffer, _ in
                 guard let audioFormat else { return }
                 do {
                     let converted = try self!.converter.convertBuffer(buffer, to: audioFormat)
@@ -276,8 +273,6 @@ class SpeechService: NSObject, ObservableObject {
         task = nil
         analyzer = nil
 
-        let inputNode = audioEngine.inputNode
-
         do {
             guard let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "en-US")) else {
                 /* Note unsupported language */
@@ -286,10 +281,9 @@ class SpeechService: NSObject, ObservableObject {
             }
             let transcriber = SpeechTranscriber(locale: locale, preset: .transcription)
             
-            let audioFormat = await SpeechAnalyzer.bestAvailableAudioFormat(compatibleWith: [transcriber])
+            // Note: SpeechAnalyzer.bestAvailableAudioFormat is not needed here as we don't install a tap in resetAnalyzer
             let analyzer = SpeechAnalyzer(modules: [transcriber])
             self.analyzer = analyzer
-            let detector = SpeechDetector()
 
             task = Task {
                 do {
