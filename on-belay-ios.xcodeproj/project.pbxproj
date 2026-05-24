@@ -32,6 +32,7 @@
 		0236EB282FA1E59F007DF34F /* FirebaseStorage in Frameworks */ = {isa = PBXBuildFile; productRef = 0236EB272FA1E59F007DF34F /* FirebaseStorage */; };
 		0236EB2A2FA1E59F007DF34F /* FirebaseStorageCombine-Community in Frameworks */ = {isa = PBXBuildFile; productRef = 0236EB292FA1E59F007DF34F /* FirebaseStorageCombine-Community */; };
 		0262287E2FC34D00006DE118 /* AppIcon 2.icon in Resources */ = {isa = PBXBuildFile; fileRef = 0262287D2FC34D00006DE118 /* AppIcon 2.icon */; };
+		026228D82FC35550006DE118 /* AppIcon.icon in Resources */ = {isa = PBXBuildFile; fileRef = 026228D72FC35550006DE118 /* AppIcon.icon */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -56,6 +57,7 @@
 		0236E82F2FA0F5C2007DF34F /* on-belay-iosTests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "on-belay-iosTests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0236E8392FA0F5C2007DF34F /* on-belay-iosUITests.xctest */ = {isa = PBXFileReference; explicitFileType = wrapper.cfbundle; includeInIndex = 0; path = "on-belay-iosUITests.xctest"; sourceTree = BUILT_PRODUCTS_DIR; };
 		0262287D2FC34D00006DE118 /* AppIcon 2.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = "AppIcon 2.icon"; sourceTree = "<group>"; };
+		026228D72FC35550006DE118 /* AppIcon.icon */ = {isa = PBXFileReference; lastKnownFileType = folder.iconcomposer.icon; path = AppIcon.icon; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
@@ -147,6 +149,7 @@
 				0236EB042FA1E59F007DF34F /* Frameworks */,
 				0236E8212FA0F5C1007DF34F /* Products */,
 				0262287D2FC34D00006DE118 /* AppIcon 2.icon */,
+				026228D72FC35550006DE118 /* AppIcon.icon */,
 			);
 			sourceTree = "<group>";
 		};
@@ -315,6 +318,7 @@
 			isa = PBXResourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				026228D82FC35550006DE118 /* AppIcon.icon in Resources */,
 				0262287E2FC34D00006DE118 /* AppIcon 2.icon in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
