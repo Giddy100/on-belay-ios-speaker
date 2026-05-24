@@ -16,6 +16,7 @@ struct MainSettingsDialog: View {
                         Image(systemName: "arrow.left")
                             .foregroundColor(.appActiveGreen)
                             .font(.title3)
+                            .flipsForRightToLeftLayoutDirection(true)
                     }
                     Text(NSLocalizedString("main_settings", comment: ""))
                         .font(.appHeadlineMd())

@@ -19,6 +19,7 @@ struct JoinGroupDialog: View {
                         Image(systemName: "arrow.left")
                             .foregroundColor(.appActiveGreen)
                             .font(.title3)
+                            .flipsForRightToLeftLayoutDirection(true)
                     }
                     Text(NSLocalizedString("join_group", comment: ""))
                         .font(.appHeadlineMd())

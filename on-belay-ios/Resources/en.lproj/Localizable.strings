@@ -52,6 +52,8 @@
 "searching_active_signals" = "SEARCHING ACTIVE SIGNALS...";
 "results_for" = "RESULTS FOR \"%@\"";
 "select_phrases" = "SELECT PHRASES";
+"active_duration" = "Active Duration";
+"thirty_day_max" = "30-Day Max";
 "security_code" = "Security Code";
 "enter_security_code_desc" = "Enter the 4-digit code provided by the group leader to join \"%@\".";
 "confirm" = "Confirm";

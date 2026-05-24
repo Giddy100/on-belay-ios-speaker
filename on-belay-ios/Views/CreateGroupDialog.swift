@@ -20,6 +20,7 @@ struct CreateGroupDialog: View {
                         Image(systemName: "arrow.left")
                             .foregroundColor(.appActiveGreen)
                             .font(.title3)
+                            .flipsForRightToLeftLayoutDirection(true)
                     }
                     Text(NSLocalizedString("create_group", comment: ""))
                         .font(.appHeadlineMd())
@@ -60,40 +61,40 @@ struct CreateGroupDialog: View {
                         .frame(maxWidth: .infinity)
 
                         // Dates
-                        HStack(spacing: 16) {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(NSLocalizedString("start_date", comment: "").uppercased())
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Text(NSLocalizedString("active_duration", comment: "").uppercased())
                                     .font(.appLabelCaps())
                                     .foregroundColor(.appOnSurfaceVariant)
+                                Spacer()
+                                Text(NSLocalizedString("thirty_day_max", comment: "").uppercased())
+                                    .font(.appLabelCaps())
+                                    .foregroundColor(.appActiveGreen)
+                            }
 
-                                ZStack(alignment: .leading) {
-                                    Text(formatDate(startDate))
-                                        .font(.appBodyLg())
-                                        .foregroundColor(.appActiveGreen)
+                            HStack(spacing: 16) {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text(NSLocalizedString("start_date", comment: "").uppercased())
+                                        .font(.appLabelCaps())
+                                        .foregroundColor(.appOnSurfaceVariant)
 
                                     DatePicker("", selection: $startDate, displayedComponents: .date)
                                         .labelsHidden()
                                         .accentColor(.appActiveGreen)
-                                        .opacity(0.011)
-                                        .scaleEffect(1.5) // Enlarged hit area
+                                        .colorMultiply(.black)
+                                        .colorInvert()
                                 }
-                            }
-                            Spacer()
-                            VStack(alignment: .trailing, spacing: 8) {
-                                Text(NSLocalizedString("end_date", comment: "").uppercased())
-                                    .font(.appLabelCaps())
-                                    .foregroundColor(.appOnSurfaceVariant)
-
-                                ZStack(alignment: .trailing) {
-                                    Text(formatDate(endDate))
-                                        .font(.appBodyLg())
-                                        .foregroundColor(.appActiveGreen)
+                                Spacer()
+                                VStack(alignment: .trailing, spacing: 8) {
+                                    Text(NSLocalizedString("end_date", comment: "").uppercased())
+                                        .font(.appLabelCaps())
+                                        .foregroundColor(.appOnSurfaceVariant)
 
                                     DatePicker("", selection: $endDate, displayedComponents: .date)
                                         .labelsHidden()
                                         .accentColor(.appActiveGreen)
-                                        .opacity(0.011)
-                                        .scaleEffect(1.5) // Enlarged hit area
+                                        .colorMultiply(.black)
+                                        .colorInvert()
                                 }
                             }
                         }
