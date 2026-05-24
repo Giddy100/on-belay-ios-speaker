@@ -89,15 +89,13 @@ class FirebaseService: NSObject, ObservableObject {
 
     func createGroup(_ group: Group) async -> Bool {
         do {
-            let groupData: [String: Any] = [
-                "groupId": group.groupId,
-                "name": group.name,
-                "code": group.code ?? "",
-                "startDate": group.startDate,
-                "endDate": group.endDate,
-                "phrases": group.phrases
-            ]
-            _ = try await functions.httpsCallable("setGroup").call(groupData)
+            let encoder = JSONEncoder()
+            let jsonData = try encoder.encode(group)
+            guard let groupDict = try JSONSerialization.jsonObject(with: jsonData) as? [String: Any] else {
+                return false
+            }
+
+            _ = try await functions.httpsCallable("setGroup").call(groupDict)
             await fetchUserGroups()
             return true
         } catch {

@@ -19,6 +19,7 @@ struct JoinGroupDialog: View {
                         Image(systemName: "arrow.left")
                             .foregroundColor(.appActiveGreen)
                             .font(.title3)
+                            .flipsForRightToLeftLayoutDirection(true)
                     }
                     Text(NSLocalizedString("join_group", comment: ""))
                         .font(.appHeadlineMd())
@@ -153,6 +154,8 @@ struct CodeEntryDialog: View {
                 .font(.appBodySm())
                 .foregroundColor(.appOnSurfaceVariant)
                 .multilineTextAlignment(.center)
+                .fixedSize(horizontal: false, vertical: true)
+                .padding(.horizontal, 16)
 
             SecurityCodeInput(code: $code)
                 .padding(.vertical, 8)

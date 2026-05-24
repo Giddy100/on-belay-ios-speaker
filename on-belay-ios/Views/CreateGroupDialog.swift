@@ -20,6 +20,7 @@ struct CreateGroupDialog: View {
                         Image(systemName: "arrow.left")
                             .foregroundColor(.appActiveGreen)
                             .font(.title3)
+                            .flipsForRightToLeftLayoutDirection(true)
                     }
                     Text(NSLocalizedString("create_group", comment: ""))
                         .font(.appHeadlineMd())
@@ -60,23 +61,41 @@ struct CreateGroupDialog: View {
                         .frame(maxWidth: .infinity)
 
                         // Dates
-                        HStack(spacing: 16) {
-                            VStack(alignment: .leading, spacing: 8) {
-                                Text(NSLocalizedString("start_date", comment: "").uppercased())
+                        VStack(alignment: .leading, spacing: 12) {
+                            HStack {
+                                Text(NSLocalizedString("active_duration", comment: "").uppercased())
                                     .font(.appLabelCaps())
                                     .foregroundColor(.appOnSurfaceVariant)
-                                DatePicker("", selection: $startDate, displayedComponents: .date)
-                                    .labelsHidden()
-                                    .accentColor(.appActiveGreen)
+                                Spacer()
+                                Text(NSLocalizedString("thirty_day_max", comment: "").uppercased())
+                                    .font(.appLabelCaps())
+                                    .foregroundColor(.appActiveGreen)
                             }
-                            Spacer()
-                            VStack(alignment: .trailing, spacing: 8) {
-                                Text(NSLocalizedString("end_date", comment: "").uppercased())
-                                    .font(.appLabelCaps())
-                                    .foregroundColor(.appOnSurfaceVariant)
-                                DatePicker("", selection: $endDate, displayedComponents: .date)
-                                    .labelsHidden()
-                                    .accentColor(.appActiveGreen)
+
+                            HStack(spacing: 16) {
+                                VStack(alignment: .leading, spacing: 8) {
+                                    Text(NSLocalizedString("start_date", comment: "").uppercased())
+                                        .font(.appLabelCaps())
+                                        .foregroundColor(.appOnSurfaceVariant)
+
+                                    DatePicker("", selection: $startDate, displayedComponents: .date)
+                                        .labelsHidden()
+                                        .accentColor(.appActiveGreen)
+                                        .colorMultiply(.black)
+                                        .colorInvert()
+                                }
+                                Spacer()
+                                VStack(alignment: .trailing, spacing: 8) {
+                                    Text(NSLocalizedString("end_date", comment: "").uppercased())
+                                        .font(.appLabelCaps())
+                                        .foregroundColor(.appOnSurfaceVariant)
+
+                                    DatePicker("", selection: $endDate, displayedComponents: .date)
+                                        .labelsHidden()
+                                        .accentColor(.appActiveGreen)
+                                        .colorMultiply(.black)
+                                        .colorInvert()
+                                }
                             }
                         }
                         .padding()
@@ -111,7 +130,7 @@ struct CreateGroupDialog: View {
                                 .frame(maxWidth: .infinity)
                         }
                         .buttonStyle(AppButtonStyle(variant: .primary))
-                        .disabled(name.isEmpty || code.count != 4 || !isDateRangeValid)
+                        .disabled(!isFormValid)
                         .padding(.bottom, 20)
                     }
                     .padding(.horizontal, AppTheme.marginMobile)
@@ -125,7 +144,20 @@ struct CreateGroupDialog: View {
 
     var isDateRangeValid: Bool {
         let diff = endDate.timeIntervalSince(startDate)
-        return diff > 0 && diff <= 30 * 24 * 60 * 60
+        return diff >= 0 && diff <= 30 * 24 * 60 * 60
+    }
+
+    var isFormValid: Bool {
+        !name.isEmpty &&
+        code.count == 4 &&
+        isDateRangeValid &&
+        phrases.contains { $0.selected }
+    }
+
+    func formatDate(_ date: Date) -> String {
+        let formatter = DateFormatter()
+        formatter.dateFormat = "dd MMM yyyy"
+        return formatter.string(from: date)
     }
 
     func createGroup() {
