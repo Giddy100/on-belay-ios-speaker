@@ -428,7 +428,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Belay is On";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "On Belay needs access to your microphone to listen for climbing commands.";
-				INFOPLIST_KEY_NSMotionUsageDescription = "";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = INCLUDE_SOURCE;
 				MTL_FAST_MATH = YES;
@@ -488,7 +487,6 @@
 				GCC_WARN_UNUSED_VARIABLE = YES;
 				INFOPLIST_KEY_CFBundleDisplayName = "Belay is On";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "On Belay needs access to your microphone to listen for climbing commands.";
-				INFOPLIST_KEY_NSMotionUsageDescription = "";
 				LOCALIZATION_PREFERS_STRING_CATALOGS = YES;
 				MTL_ENABLE_DEBUG_INFO = NO;
 				MTL_FAST_MATH = YES;
@@ -514,7 +512,6 @@
 				INFOPLIST_FILE = "on-belay-ios/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Belay is On";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Belay is On needs access to your microphone to listen for climbing commands.";
-				INFOPLIST_KEY_NSMotionUsageDescription = "";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "On Belay needs speech recognition to understand your climbing commands.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -564,7 +561,6 @@
 				INFOPLIST_FILE = "on-belay-ios/Info.plist";
 				INFOPLIST_KEY_CFBundleDisplayName = "Belay is On";
 				INFOPLIST_KEY_NSMicrophoneUsageDescription = "Belay is On needs access to your microphone to listen for climbing commands.";
-				INFOPLIST_KEY_NSMotionUsageDescription = "";
 				INFOPLIST_KEY_NSSpeechRecognitionUsageDescription = "On Belay needs speech recognition to understand your climbing commands.";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
