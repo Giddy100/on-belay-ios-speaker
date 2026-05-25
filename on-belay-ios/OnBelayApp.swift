@@ -2,6 +2,7 @@ import SwiftUI
 import Foundation
 import FirebaseCore
 import FirebaseMessaging
+import GoogleSignIn
 
 class AppDelegate: NSObject, UIApplicationDelegate {
     func application(_ application: UIApplication,
@@ -65,6 +66,9 @@ struct OnBelayApp: App {
                     LoginView()
                         .environment(\.layoutDirection, isHebrew ? .rightToLeft : .leftToRight)
                 }
+            }
+            .onOpenURL { url in
+                GIDSignIn.sharedInstance.handle(url)
             }
         }
     }

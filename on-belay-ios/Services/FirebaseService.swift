@@ -4,6 +4,7 @@ import FirebaseFunctions
 import FirebaseAuth
 import FirebaseCore
 import Combine
+import GoogleSignIn
 
 class FirebaseService: NSObject, ObservableObject {
     static let shared = FirebaseService()
@@ -40,6 +41,7 @@ class FirebaseService: NSObject, ObservableObject {
     func signOut() {
         do {
             try Auth.auth().signOut()
+            GIDSignIn.sharedInstance.signOut()
             userSettings = nil
             userGroups = []
         } catch {

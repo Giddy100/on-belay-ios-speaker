@@ -2,10 +2,19 @@
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
 <plist version="1.0">
 <dict>
-	<key>UIBackgroundModes</key>
+	<key>CFBundleURLTypes</key>
 	<array>
-		<string>audio</string>
+		<dict>
+			<key>CFBundleTypeRole</key>
+			<string>Editor</string>
+			<key>CFBundleURLSchemes</key>
+			<array>
+				<string>com.googleusercontent.apps.1049936970203-68dubs3uts841lhthobg044so3qmpu95</string>
+			</array>
+		</dict>
 	</array>
+	<key>GIDClientID</key>
+	<string>1049936970203-68dubs3uts841lhthobg044so3qmpu95.apps.googleusercontent.com</string>
 	<key>UIAppFonts</key>
 	<array>
 		<string>Lexend-Regular.ttf</string>
@@ -13,6 +22,10 @@
 		<string>Lexend-SemiBold.ttf</string>
 		<string>JetBrainsMono-Regular.ttf</string>
 		<string>JetBrainsMono-Bold.ttf</string>
+	</array>
+	<key>UIBackgroundModes</key>
+	<array>
+		<string>audio</string>
 	</array>
 </dict>
 </plist>

@@ -17,13 +17,10 @@ struct MainScreen: View {
                 // 1st Row: Top bar (Belay is On)
                 HStack {
                     HStack(spacing: 12) {
-                        Image(systemName: "mountain.2.fill")
+                        Image("BelayIsOnLogo")
                             .resizable()
                             .aspectRatio(contentMode: .fit)
-                            .frame(width: 24, height: 24)
-                            .padding(4)
-                            .background(Color.appActiveGreen)
-                            .foregroundColor(.appGraniteGray)
+                            .frame(width: 36, height: 36)
                             .cornerRadius(16)
                         Text(NSLocalizedString("app_name", comment: "").uppercased())
                             .font(.appHeadlineMd())
