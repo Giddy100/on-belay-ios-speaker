@@ -9,7 +9,7 @@ struct LoginView: View {
 
     var body: some View {
         VStack(spacing: 20) {
-            Image(systemName: "figure.climbing")
+            Image("BelayIsOnLogo")
                 .resizable()
                 .scaledToFit()
                 .frame(width: 100, height: 100)
@@ -18,6 +18,10 @@ struct LoginView: View {
             Text(NSLocalizedString("app_name", comment: ""))
                 .font(.largeTitle)
                 .bold()
+
+            Text(NSLocalizedString("sign_in_explanation", comment: ""))
+                .font(.appLabelCaps())
+                .padding()
 
             Spacer()
 
