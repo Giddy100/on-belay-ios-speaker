@@ -18,12 +18,6 @@ class AppDelegate: NSObject, UIApplicationDelegate {
         return true
     }
 
-    func application(_ app: UIApplication,
-                     open url: URL,
-                     options: [UIApplication.OpenURLOptionsKey: Any] = [:]) -> Bool {
-      return GIDSignIn.sharedInstance.handle(url)
-    }
-
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
         Messaging.messaging().apnsToken = deviceToken
     }
@@ -72,6 +66,9 @@ struct OnBelayApp: App {
                     LoginView()
                         .environment(\.layoutDirection, isHebrew ? .rightToLeft : .leftToRight)
                 }
+            }
+            .onOpenURL { url in
+                GIDSignIn.sharedInstance.handle(url)
             }
         }
     }
