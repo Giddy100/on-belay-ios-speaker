@@ -13,6 +13,26 @@ class MainViewModel: ObservableObject {
 
     init() {
         Publishers.CombineLatest(firebase.$userSettings, firebase.$userGroups)
+            .first { settings, groups in
+                settings != nil && !groups.isEmpty
+            }
+            .sink { [weak self] settings, groups in
+                guard let self = self, let settings = settings else { return }
+
+                self.isActive = settings.isActive
+                let groupId = settings.selectedGroupId ?? ""
+                self.selectedGroupId = groupId
+                self.updateSelectedGroup(id: groupId)
+
+                if self.isActive && !self.selectedGroupId.isEmpty {
+                    self.speech.addLog(NSLocalizedString("auto_starting_session", comment: ""))
+                    self.speech.startListening()
+                }
+            }
+            .store(in: &cancellables)
+
+        Publishers.CombineLatest(firebase.$userSettings, firebase.$userGroups)
+            .dropFirst()
             .sink { [weak self] settings, groups in
                 if let settings = settings {
                     self?.isActive = settings.isActive

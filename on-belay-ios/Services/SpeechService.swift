@@ -18,6 +18,7 @@ class SpeechService: NSObject, ObservableObject {
     private var wakeupWords = ["hey","moses"]
     private var isWaitingForCommand = false
     private var commandTimer: Timer?
+    private var lastPushTime: Date?
 
     private var selectedGroup: Group?
     private var volume: Float = 1.0
@@ -180,6 +181,16 @@ class SpeechService: NSObject, ObservableObject {
         }
 
         if !isWaitingForCommand {
+            if let lastPush = lastPushTime, Date().timeIntervalSince(lastPush) <= 20 {
+                if transcript.contains("ok") {
+                    if let okPhrase = findPhraseByName("OK") {
+                        processCommand(okPhrase)
+                        lastPushTime = nil // Reset after successful OK
+                        return
+                    }
+                }
+            }
+
             if isWakeupPhrase(transcript) {
                 addLog("Wakeup phrase '\(wakeupPhrase)' detected")
                 enterCommandMode()
@@ -191,6 +202,11 @@ class SpeechService: NSObject, ObservableObject {
                 handleUnknownCommand()
             }
         }
+    }
+
+    private func findPhraseByName(_ name: String) -> Phrase? {
+        guard let phrases = selectedGroup?.phrases else { return nil }
+        return phrases.first { $0.name == name }
     }
     
     private func isWakeupPhrase(_ phrase: String) -> Bool {
@@ -232,7 +248,7 @@ class SpeechService: NSObject, ObservableObject {
         isWaitingForCommand = false
         addLog(String(format: NSLocalizedString("command_identified", comment: ""), phrase.name))
 
-        AudioService.shared.playSound(phrase.soundFileName, volume: volume)
+        AudioService.shared.playSounds(["notifying", phrase.soundFileName], volume: volume)
 
         if let groupId = selectedGroup?.groupId {
             Task {
@@ -318,6 +334,11 @@ class SpeechService: NSObject, ObservableObject {
         }
     }
 
+    func notifyPushReceived() {
+        lastPushTime = Date()
+        print("SpeechService: Push received, 20s window for 'OK' started")
+    }
+
     func addLog(_ message: String) {
         DispatchQueue.main.async {
             self.logs.append(message)
@@ -325,18 +346,33 @@ class SpeechService: NSObject, ObservableObject {
     }
 }
 
-class AudioService {
+class AudioService: NSObject, AVAudioPlayerDelegate {
     static let shared = AudioService()
     private var player: AVAudioPlayer?
+    private var queue: [String] = []
+    private var currentVolume: Float = 1.0
 
     func playSound(_ filename: String, volume: Float) {
+        playSounds([filename], volume: volume)
+    }
+
+    func playSounds(_ filenames: [String], volume: Float) {
+        self.queue = filenames
+        self.currentVolume = volume
+        playNextInQueue()
+    }
+
+    private func playNextInQueue() {
+        guard !queue.isEmpty else { return }
+        let filename = queue.removeFirst()
+
         guard let url = Bundle.main.url(forResource: filename.replacingOccurrences(of: ".wav", with: ""), withExtension: "wav") else {
             print("Sound file not found: \(filename)")
+            playNextInQueue()
             return
         }
 
         do {
-            // Use the current session instead of switching to .playback which might stop recording
             let audioSession = AVAudioSession.sharedInstance()
             if audioSession.category != .playAndRecord {
                 try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .mixWithOthers])
@@ -344,10 +380,16 @@ class AudioService {
             }
 
             player = try AVAudioPlayer(contentsOf: url)
-            player?.volume = volume
+            player?.delegate = self
+            player?.volume = currentVolume
             player?.play()
         } catch {
             print("Error playing sound: \(error)")
+            playNextInQueue()
         }
+    }
+
+    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        playNextInQueue()
     }
 }

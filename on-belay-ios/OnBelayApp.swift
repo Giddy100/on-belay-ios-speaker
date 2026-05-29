@@ -38,6 +38,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         if let soundFile = userInfo["iphoneFileId"] as? String {
             let volume = Float(FirebaseService.shared.userSettings?.volume ?? 1.0)
             AudioService.shared.playSound(soundFile, volume: volume)
+            SpeechService.shared.notifyPushReceived()
         }
 
         completionHandler([[.banner, .list, .sound]])
