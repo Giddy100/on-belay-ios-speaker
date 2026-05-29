@@ -76,7 +76,7 @@ class MainViewModel: ObservableObject {
                 speech.logs = []
                 speech.startListening()
             } else {
-                speech.stopListening()
+                await speech.stopListening()
             }
         }
     }

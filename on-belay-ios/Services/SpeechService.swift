@@ -59,12 +59,13 @@ class SpeechService: NSObject, ObservableObject {
         }
     }
 
-    func stopListening() {
+    func stopListening() async {
         print("SpeechService: stopListening called")
         audioEngine.stop()
         audioEngine.inputNode.removeTap(onBus: 0)
         task?.cancel()
         task = nil
+        await analyzer?.cancelAndFinishNow()
         analyzer = nil
         isListening = false
         isWaitingForCommand = false
@@ -116,7 +117,7 @@ class SpeechService: NSObject, ObservableObject {
                     let nsError = error as NSError
                     if nsError.domain == "kAFAssistantErrorDomain" && nsError.code == 203 {
                         self.addLog(NSLocalizedString("error_siri_disabled", comment: ""))
-                        self.stopListening()
+                        Task { await self.stopListening() }
                     } else if self.isListening {
                         self.restartRecognition()
                     }
