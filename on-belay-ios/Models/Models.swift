@@ -24,6 +24,19 @@ struct User: Codable, Identifiable, Hashable {
     }
 }
 
+struct GroupMember: Codable, Identifiable, Hashable {
+    let id: String
+    let name: String
+    let active: Bool
+}
+
+struct GroupToJoin: Codable {
+    let groupId: String
+    let name: String
+    let createdByName: String
+    let alreadyJoined: Bool
+}
+
 struct Group: Codable, Identifiable, Hashable {
     var id: String { groupId }
     let groupId: String

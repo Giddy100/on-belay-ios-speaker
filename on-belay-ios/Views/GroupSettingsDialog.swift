@@ -6,6 +6,7 @@ struct GroupSettingsDialog: View {
     @State var group: Group
     @State private var showingDeleteAlert = false
     @State private var showingLeaveAlert = false
+    @State private var showingMembers = false
 
     var isCreator: Bool {
         group.createdByUid == FirebaseService.shared.currentUser?.uid
@@ -72,59 +73,6 @@ struct GroupSettingsDialog: View {
                             }
                             .frame(maxWidth: .infinity)
 
-                            // Dates
-                            VStack(alignment: .leading, spacing: 12) {
-                                HStack {
-                                    Text(NSLocalizedString("active_duration", comment: "").uppercased())
-                                        .font(.appLabelCaps())
-                                        .foregroundColor(.appOnSurfaceVariant)
-                                    Spacer()
-                                    Text(NSLocalizedString("thirty_day_max", comment: "").uppercased())
-                                        .font(.appLabelCaps())
-                                        .foregroundColor(.appActiveGreen)
-                                }
-
-                                HStack(spacing: 16) {
-                                    VStack(alignment: .leading, spacing: 8) {
-                                        Text(NSLocalizedString("start_date", comment: "").uppercased())
-                                            .font(.appLabelCaps())
-                                            .foregroundColor(.appOnSurfaceVariant)
-
-                                        DatePicker("", selection: Binding(
-                                            get: { group.startAsDate },
-                                            set: { group.startDate = $0.timeIntervalSince1970 * 1000 }
-                                        ), displayedComponents: .date)
-                                            .labelsHidden()
-                                            .accentColor(.appActiveGreen)
-                                            .colorMultiply(.black)
-                                            .colorInvert()
-                                    }
-                                    Spacer()
-                                    VStack(alignment: .trailing, spacing: 8) {
-                                        Text(NSLocalizedString("end_date", comment: "").uppercased())
-                                            .font(.appLabelCaps())
-                                            .foregroundColor(.appOnSurfaceVariant)
-
-                                        DatePicker("", selection: Binding(
-                                            get: { group.endAsDate },
-                                            set: { group.endDate = $0.timeIntervalSince1970 * 1000 }
-                                        ), displayedComponents: .date)
-                                            .labelsHidden()
-                                            .accentColor(.appActiveGreen)
-                                            .colorMultiply(.black)
-                                            .colorInvert()
-                                    }
-                                }
-                            }
-                            .padding()
-                            .background(Color.appSurfaceContainer)
-                            .cornerRadius(AppTheme.cornerRadiusMd)
-                        } else {
-                            Text(String(format: NSLocalizedString("group_starts_ends", comment: ""),
-                                        formatDate(group.startAsDate),
-                                        formatDate(group.endAsDate)))
-                                .font(.appBodySm())
-                                .foregroundColor(.appActiveGreen)
                         }
 
                         // Phrases
@@ -156,30 +104,58 @@ struct GroupSettingsDialog: View {
 
                         Spacer(minLength: 40)
 
-                        if isCreator {
-                            Button(action: updateGroup) {
-                                Text(NSLocalizedString("update", comment: ""))
-                                    .frame(maxWidth: .infinity)
-                            }
-                            .buttonStyle(AppButtonStyle(variant: .primary))
-                            .disabled(!isFormValid)
-                        }
+                        VStack(spacing: 16) {
+                            HStack(spacing: 16) {
+                                Button(action: { showingMembers = true }) {
+                                    Text(NSLocalizedString("members", comment: ""))
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(AppButtonStyle(variant: .primary))
 
-                        Button(action: {
-                            if isCreator {
-                                showingDeleteAlert = true
-                            } else {
-                                showingLeaveAlert = true
+                                Button(action: {
+                                    if isCreator {
+                                        showingDeleteAlert = true
+                                    } else {
+                                        showingLeaveAlert = true
+                                    }
+                                }) {
+                                    Text(isCreator ? NSLocalizedString("delete_group", comment: "") : NSLocalizedString("leave_group", comment: ""))
+                                        .frame(maxWidth: .infinity)
+                                }
+                                .buttonStyle(AppButtonStyle(variant: .destructive))
                             }
-                        }) {
-                            Text(isCreator ? NSLocalizedString("delete_group", comment: "") : NSLocalizedString("leave_group", comment: ""))
-                                .frame(maxWidth: .infinity)
+
+                            HStack(spacing: 16) {
+                                if isCreator {
+                                    Button(action: updateGroup) {
+                                        Text(NSLocalizedString("update", comment: ""))
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                    .buttonStyle(AppButtonStyle(variant: .primary))
+                                    .disabled(!isFormValid)
+
+                                    Button(action: { isPresented = false }) {
+                                        Text(NSLocalizedString("cancel", comment: ""))
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                    .buttonStyle(AppButtonStyle(variant: .outline))
+                                } else {
+                                    Button(action: { isPresented = false }) {
+                                        Text(NSLocalizedString("cancel", comment: ""))
+                                            .frame(maxWidth: .infinity)
+                                    }
+                                    .buttonStyle(AppButtonStyle(variant: .outline))
+                                }
+                            }
                         }
-                        .buttonStyle(AppButtonStyle(variant: .destructive))
                         .padding(.bottom, 20)
                     }
                     .padding(.horizontal, AppTheme.marginMobile)
                 }
+            }
+
+            if showingMembers {
+                MembersDialog(isPresented: $showingMembers, group: group)
             }
         }
         .alert(NSLocalizedString("are_you_sure_delete", comment: ""), isPresented: $showingDeleteAlert) {
@@ -192,15 +168,9 @@ struct GroupSettingsDialog: View {
         }
     }
 
-    var isDateRangeValid: Bool {
-        let diff = group.endAsDate.timeIntervalSince(group.startAsDate)
-        return diff >= 0 && diff <= 30 * 24 * 60 * 60
-    }
-
     var isFormValid: Bool {
         !group.name.isEmpty &&
         (group.code?.count ?? 0) == 4 &&
-        isDateRangeValid &&
         (group.phrases?.contains { $0.selected } ?? false)
     }
 

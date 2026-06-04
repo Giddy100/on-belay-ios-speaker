@@ -5,9 +5,9 @@ struct CreateGroupDialog: View {
     @Binding var isPresented: Bool
     @State private var name = ""
     @State private var code = ""
-    @State private var startDate = Date()
-    @State private var endDate = Date().addingTimeInterval(7 * 24 * 60 * 60)
     @State private var phrases: [Phrase] = []
+    @State private var createdGroup: Group?
+    @State private var showingInvite = false
 
     var body: some View {
         ZStack {
@@ -60,48 +60,6 @@ struct CreateGroupDialog: View {
                         }
                         .frame(maxWidth: .infinity)
 
-                        // Dates
-                        VStack(alignment: .leading, spacing: 12) {
-                            HStack {
-                                Text(NSLocalizedString("active_duration", comment: "").uppercased())
-                                    .font(.appLabelCaps())
-                                    .foregroundColor(.appOnSurfaceVariant)
-                                Spacer()
-                                Text(NSLocalizedString("thirty_day_max", comment: "").uppercased())
-                                    .font(.appLabelCaps())
-                                    .foregroundColor(.appActiveGreen)
-                            }
-
-                            HStack(spacing: 16) {
-                                VStack(alignment: .leading, spacing: 8) {
-                                    Text(NSLocalizedString("start_date", comment: "").uppercased())
-                                        .font(.appLabelCaps())
-                                        .foregroundColor(.appOnSurfaceVariant)
-
-                                    DatePicker("", selection: $startDate, displayedComponents: .date)
-                                        .labelsHidden()
-                                        .accentColor(.appActiveGreen)
-                                        .colorMultiply(.black)
-                                        .colorInvert()
-                                }
-                                Spacer()
-                                VStack(alignment: .trailing, spacing: 8) {
-                                    Text(NSLocalizedString("end_date", comment: "").uppercased())
-                                        .font(.appLabelCaps())
-                                        .foregroundColor(.appOnSurfaceVariant)
-
-                                    DatePicker("", selection: $endDate, displayedComponents: .date)
-                                        .labelsHidden()
-                                        .accentColor(.appActiveGreen)
-                                        .colorMultiply(.black)
-                                        .colorInvert()
-                                }
-                            }
-                        }
-                        .padding()
-                        .background(Color.appSurfaceContainer)
-                        .cornerRadius(AppTheme.cornerRadiusMd)
-
                         // Phrases
                         VStack(alignment: .leading, spacing: 12) {
                             Text(NSLocalizedString("select_phrases", comment: "").uppercased())
@@ -136,28 +94,22 @@ struct CreateGroupDialog: View {
                     .padding(.horizontal, AppTheme.marginMobile)
                 }
             }
+
+            if showingInvite, let group = createdGroup {
+                InviteMembersDialog(isPresented: $showingInvite, group: group) {
+                    isPresented = false
+                }
+            }
         }
         .task {
             phrases = await FirebaseService.shared.getDefaultPhrases()
         }
     }
 
-    var isDateRangeValid: Bool {
-        let diff = endDate.timeIntervalSince(startDate)
-        return diff >= 0 && diff <= 30 * 24 * 60 * 60
-    }
-
     var isFormValid: Bool {
         !name.isEmpty &&
         code.count == 4 &&
-        isDateRangeValid &&
         phrases.contains { $0.selected }
-    }
-
-    func formatDate(_ date: Date) -> String {
-        let formatter = DateFormatter()
-        formatter.dateFormat = "dd MMM yyyy"
-        return formatter.string(from: date)
     }
 
     func createGroup() {
@@ -166,15 +118,16 @@ struct CreateGroupDialog: View {
             name: name,
             createdByName: FirebaseService.shared.userSettings?.name ?? "",
             code: code,
-            startDate: startDate.timeIntervalSince1970 * 1000,
-            endDate: endDate.timeIntervalSince1970 * 1000,
+            startDate: nil,
+            endDate: nil,
             phrases: phrases,
             createdByUid: FirebaseService.shared.currentUser?.uid ?? "",
             joinedUsers: []
         )
         Task {
             if await FirebaseService.shared.createGroup(group) {
-                isPresented = false
+                createdGroup = group
+                showingInvite = true
             }
         }
     }

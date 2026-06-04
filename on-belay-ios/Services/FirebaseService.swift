@@ -161,6 +161,42 @@ class FirebaseService: NSObject, ObservableObject {
         return false
     }
 
+    func getGroupMembers(groupId: String) async -> [GroupMember] {
+        do {
+            let result = try await functions.httpsCallable("getGroupMembers").call(["groupId": groupId])
+            if let data = result.data as? [[String: Any]] {
+                let jsonData = try JSONSerialization.data(withJSONObject: data)
+                return try JSONDecoder().decode([GroupMember].self, from: jsonData)
+            }
+        } catch {
+            print("Error getting group members: \(error)")
+        }
+        return []
+    }
+
+    func removeGroupMember(groupId: String, userId: String) async -> Bool {
+        do {
+            _ = try await functions.httpsCallable("removeGroupMember").call(["groupId": groupId, "userId": userId])
+            return true
+        } catch {
+            print("Error removing group member: \(error)")
+            return false
+        }
+    }
+
+    func getGroupToJoin(groupId: String) async -> GroupToJoin? {
+        do {
+            let result = try await functions.httpsCallable("getGroupToJoin").call(["groupId": groupId])
+            if let data = result.data as? [String: Any] {
+                let jsonData = try JSONSerialization.data(withJSONObject: data)
+                return try JSONDecoder().decode(GroupToJoin.self, from: jsonData)
+            }
+        } catch {
+            print("Error getting group to join: \(error)")
+        }
+        return nil
+    }
+
     func getDefaultPhrases() async -> [Phrase] {
         do {
             let result = try await functions.httpsCallable("getDefaultPhrases").call()

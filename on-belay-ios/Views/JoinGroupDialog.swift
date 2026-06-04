@@ -3,10 +3,10 @@ import SwiftUI
 struct JoinGroupDialog: View {
     @Binding var isPresented: Bool
     @State private var searchQuery = ""
-    @State private var searchResults: [Group] = []
-    @State private var selectedGroup: Group?
+    @State private var selectedGroup: GroupToJoin?
     @State private var showingCodeEntry = false
     @State private var isSearching = false
+    @State private var searchMessage: String?
 
     var body: some View {
         ZStack {
@@ -33,18 +33,15 @@ struct JoinGroupDialog: View {
 
                 // Search Bar
                 HStack {
-                    Image(systemName: "magnifyingglass")
-                        .foregroundColor(.appActiveGreen)
-                    TextField(NSLocalizedString("name", comment: ""), text: $searchQuery)
+                    Button(action: search) {
+                        Image(systemName: "magnifyingglass")
+                            .foregroundColor(.appActiveGreen)
+                    }
+                    TextField(NSLocalizedString("group_id", comment: ""), text: $searchQuery)
                         .font(.appBodyLg())
                         .foregroundColor(.appOnSurface)
-                        .onChange(of: searchQuery) { _, newValue in
-                            if newValue.count >= 2 {
-                                search()
-                            } else {
-                                searchResults = []
-                            }
-                        }
+                        .autocapitalization(.none)
+                        .disableAutocorrection(true)
                 }
                 .padding()
                 .background(Color.appSurfaceContainer)
@@ -60,46 +57,12 @@ struct JoinGroupDialog: View {
                         .font(.appLabelCaps())
                         .foregroundColor(.appOnSurfaceVariant)
                         .padding(.top, 20)
-                } else if !searchQuery.isEmpty {
-                    Text(String(format: NSLocalizedString("results_for", comment: ""), searchQuery.uppercased()))
-                        .font(.appLabelCaps())
+                } else if let message = searchMessage {
+                    Text(message)
+                        .font(.appBodySm())
                         .foregroundColor(.appActiveGreen)
-                        .frame(maxWidth: .infinity, alignment: .leading)
                         .padding(.top, 24)
                         .padding(.horizontal, AppTheme.marginMobile)
-                }
-
-                // Results
-                ScrollView {
-                    VStack(spacing: 12) {
-                        ForEach(searchResults) { group in
-                            HStack {
-                                VStack(alignment: .leading, spacing: 4) {
-                                    Text(group.name)
-                                        .font(.appHeadlineMd())
-                                        .foregroundColor(.appOnSurface)
-                                    Text(String(format: NSLocalizedString("by_author", comment: ""), group.createdByName))
-                                        .font(.appBodySm())
-                                        .foregroundColor(.appOnSurfaceVariant)
-                                }
-                                Spacer()
-                                Button(NSLocalizedString("join", comment: "").uppercased()) {
-                                    selectedGroup = group
-                                    showingCodeEntry = true
-                                }
-                                .buttonStyle(AppButtonStyle(variant: .primary))
-                            }
-                            .padding()
-                            .background(Color.appSurfaceContainer)
-                            .cornerRadius(AppTheme.cornerRadiusMd)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: AppTheme.cornerRadiusMd)
-                                    .stroke(Color.appOutline.opacity(0.1), lineWidth: 1)
-                            )
-                        }
-                    }
-                    .padding(.top, 16)
-                    .padding(.horizontal, AppTheme.marginMobile)
                 }
 
                 Spacer()
@@ -117,9 +80,20 @@ struct JoinGroupDialog: View {
     }
 
     func search() {
+        guard !searchQuery.isEmpty else { return }
         isSearching = true
+        searchMessage = nil
         Task {
-            searchResults = await FirebaseService.shared.searchGroups(query: searchQuery)
+            if let group = await FirebaseService.shared.getGroupToJoin(groupId: searchQuery) {
+                if group.alreadyJoined {
+                    searchMessage = NSLocalizedString("already_part_of_group", comment: "")
+                } else {
+                    selectedGroup = group
+                    showingCodeEntry = true
+                }
+            } else {
+                searchMessage = NSLocalizedString("group_not_found", comment: "")
+            }
             isSearching = false
         }
     }
