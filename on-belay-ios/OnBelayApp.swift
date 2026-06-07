@@ -27,6 +27,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 }
 
+
 extension AppDelegate: UNUserNotificationCenterDelegate {
     func userNotificationCenter(_ center: UNUserNotificationCenter,
                                 willPresent notification: UNNotification,
@@ -51,6 +52,7 @@ extension AppDelegate: UNUserNotificationCenterDelegate {
         completionHandler()
     }
 }
+
 
 @main
 struct OnBelayApp: App {

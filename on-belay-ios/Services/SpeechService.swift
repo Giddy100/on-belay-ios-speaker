@@ -86,7 +86,6 @@ class SpeechService: NSObject, ObservableObject {
             audioEngine.inputNode.removeTap(onBus: 0)
 
             guard let locale = await SpeechTranscriber.supportedLocale(equivalentTo: Locale(identifier: "en-US")) else {
-                /* Note unsupported language */
                 print("English is not supported on this device")
                 return
             }
@@ -139,7 +138,6 @@ class SpeechService: NSObject, ObservableObject {
             print("SpeechService: Audio engine started")
             
             try await analyzer.start(inputSequence: inputSequence)
-
             isListening = true
             addLog(NSLocalizedString("waiting_wakeup", comment: ""))
         } catch {
@@ -152,10 +150,54 @@ class SpeechService: NSObject, ObservableObject {
 
     private func configureAudioSession() throws {
         let audioSession = AVAudioSession.sharedInstance()
-        try audioSession.setCategory(.playAndRecord, mode: .measurement, options: [.defaultToSpeaker, .duckOthers])
+        try audioSession.setCategory(.playAndRecord, mode: .default, options: [.mixWithOthers, .defaultToSpeaker])
         try audioSession.setActive(true, options: .notifyOthersOnDeactivation)
     }
-
+    
+    func observeInterruptions() async {
+        // Observe interruption notifications using async sequences.
+        for await notification in NotificationCenter.default.notifications(
+            named: AVAudioSession.interruptionNotification,
+            object: AVAudioSession.sharedInstance()
+        ) {
+            handleInterruption(notification: notification)
+        }
+    }
+    
+    func handleInterruption(notification: Notification) {
+        print("AudioSession interrupted.")
+        guard let userInfo = notification.userInfo,
+              let typeValue = userInfo[AVAudioSessionInterruptionTypeKey] as? UInt,
+              let type = AVAudioSession.InterruptionType(rawValue: typeValue) else {
+            return
+        }
+        
+        /*
+        // Switch over the interruption type.
+        switch type {
+            
+            
+        case .began:
+            // An interruption began. Update the UI as necessary.
+            
+            
+        case .ended:
+            // An interruption ended. Resume playback, if appropriate.
+            
+            
+            guard let optionsValue = userInfo[AVAudioSessionInterruptionOptionKey] as? UInt else { return }
+            let options = AVAudioSession.InterruptionOptions(rawValue: optionsValue)
+            if options.contains(.shouldResume) {
+                // An interruption ended. Resume playback.
+            } else {
+                // An interruption ended. Don't resume playback.
+            }
+            
+            
+        default: ()
+        }
+         */
+    }
     private func handleAnalyzerResult(_ result: SpeechTranscriber.Result) {
         if result.isFinal {
             handleTranscription(result.text)
