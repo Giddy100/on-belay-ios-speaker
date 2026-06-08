@@ -63,7 +63,7 @@
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		0236EABF2FA1D88A007DF34F /* Exceptions for "on-belay-ios" folder in "on-belay-ios-speaker" target */ = {
+		0236EABF2FA1D88A007DF34F /* Exceptions for "on-belay-ios-speaker" folder in "on-belay-ios-speaker" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
@@ -73,22 +73,22 @@
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		0236E8222FA0F5C1007DF34F /* on-belay-ios */ = {
+		0236E8222FA0F5C1007DF34F /* on-belay-ios-speaker */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				0236EABF2FA1D88A007DF34F /* Exceptions for "on-belay-ios" folder in "on-belay-ios-speaker" target */,
+				0236EABF2FA1D88A007DF34F /* Exceptions for "on-belay-ios-speaker" folder in "on-belay-ios-speaker" target */,
 			);
-			path = "on-belay-ios";
+			path = "on-belay-ios-speaker";
 			sourceTree = "<group>";
 		};
-		0236E8322FA0F5C2007DF34F /* on-belay-iosTests */ = {
+		0236E8322FA0F5C2007DF34F /* on-belay-ios-speakerTests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "on-belay-iosTests";
+			path = "on-belay-ios-speakerTests";
 			sourceTree = "<group>";
 		};
-		0236E83C2FA0F5C2007DF34F /* on-belay-iosUITests */ = {
+		0236E83C2FA0F5C2007DF34F /* on-belay-ios-speakerUITests */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
-			path = "on-belay-iosUITests";
+			path = "on-belay-ios-speakerUITests";
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -147,9 +147,9 @@
 		0236E8172FA0F5C1007DF34F = {
 			isa = PBXGroup;
 			children = (
-				0236E8222FA0F5C1007DF34F /* on-belay-ios */,
-				0236E8322FA0F5C2007DF34F /* on-belay-iosTests */,
-				0236E83C2FA0F5C2007DF34F /* on-belay-iosUITests */,
+				0236E8222FA0F5C1007DF34F /* on-belay-ios-speaker */,
+				0236E8322FA0F5C2007DF34F /* on-belay-ios-speakerTests */,
+				0236E83C2FA0F5C2007DF34F /* on-belay-ios-speakerUITests */,
 				0236EB042FA1E59F007DF34F /* Frameworks */,
 				0236E8212FA0F5C1007DF34F /* Products */,
 				0262287D2FC34D00006DE118 /* AppIcon 2.icon */,
@@ -190,7 +190,7 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				0236E8222FA0F5C1007DF34F /* on-belay-ios */,
+				0236E8222FA0F5C1007DF34F /* on-belay-ios-speaker */,
 			);
 			name = "on-belay-ios-speaker";
 			packageProductDependencies = (
@@ -239,7 +239,7 @@
 				0236E8312FA0F5C2007DF34F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				0236E8322FA0F5C2007DF34F /* on-belay-iosTests */,
+				0236E8322FA0F5C2007DF34F /* on-belay-ios-speakerTests */,
 			);
 			name = "on-belay-ios-speakerTests";
 			packageProductDependencies = (
@@ -262,7 +262,7 @@
 				0236E83B2FA0F5C2007DF34F /* PBXTargetDependency */,
 			);
 			fileSystemSynchronizedGroups = (
-				0236E83C2FA0F5C2007DF34F /* on-belay-iosUITests */,
+				0236E83C2FA0F5C2007DF34F /* on-belay-ios-speakerUITests */,
 			);
 			name = "on-belay-ios-speakerUITests";
 			packageProductDependencies = (
