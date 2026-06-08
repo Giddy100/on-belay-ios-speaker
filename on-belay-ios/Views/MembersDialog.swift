@@ -1,4 +1,5 @@
 import SwiftUI
+import FirebaseAuth
 
 struct MembersDialog: View {
     @Binding var isPresented: Bool
@@ -51,13 +52,15 @@ struct MembersDialog: View {
                                             .font(.appHeadlineMd())
                                             .foregroundColor(.appOnSurface)
                                         HStack(spacing: 4) {
-                                            Text(NSLocalizedString("active", comment: ""))
-                                                .font(.appBodySm())
-                                                .foregroundColor(.appOnSurfaceVariant)
                                             if member.active {
-                                                Image(systemName: "checkmark")
-                                                    .foregroundColor(.appActiveGreen)
-                                                    .font(.caption)
+                                                Text(NSLocalizedString("active", comment: ""))
+                                                    .font(.appBodySm())
+                                                    .foregroundColor(.appOnSurfaceVariant)
+                                            } else {
+                                                Text(NSLocalizedString("not active", comment: ""))
+                                                    .font(.appBodySm())
+                                                    .foregroundColor(.appOnSurfaceVariant)
+
                                             }
                                         }
                                     }
