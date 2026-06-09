@@ -109,6 +109,7 @@ spacing:
 This is a mobile application names "Belay is On" designed for climbers communication. 2 climbers will use the app and it will act like hand-free walkie talkie between them.
 The communication will start with a wake-up word "Hey Moses" and then will follow with a climbing command such as "On Belay", "Climbing". Once one climber will say this command, the other climber will hear it.
 The 2 climbers need to be on the same group. Therefore, part of the UI is creating, joining, selecting and activating a group.
+In iOs, becuase of technical difficulties, we split it into 2 applications - Belay is On and Belay is On Speaker. As a result the UI defined below might be splitted and shared between both applications.
 
 ## Screens
 # Main Screen:
@@ -125,9 +126,8 @@ Wew needs the ability to switch user
 # Group Component:
 - "Name". We will refer this field as "Create Group Name Edit Field".
 - "Code". We will refer to it as "Create Group Code Edit Field". It should be exactly 4 digits.
-- Start and End date - ability to choose a range when to start and end. We will refer it as "Create Group dates range. When entering, the start date will be today and the end date will be today + 7 days. You can't choose a range longer than 30 days.
 - Phrases - Ability to see all the phrases and selectd/de select one of them
 
 # To Join a Group:
-We will search by name and the result will be displayed for the user. The user will select the matched group and click "Join". It will then need to match the 4 digits code of the group.
+We will search by group id and the result will be displayed for the user. The user will then need to match the 4 digits code of the group.
 

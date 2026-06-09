@@ -7,7 +7,7 @@
 Ability to communicate between multi-pitch climbers group members using pre-defined voice commands. The application is configured to pre-defined commands which it can identify after a wakeup-phrase and once identified, play it using push notification to all group members. 
 
 ## Architecture
-- Client - Kotlin for Android and Swift for iOS. 
+- Client - Kotlin for Android and Swift for iOS. In iOs, becuase of technical difficulties, we split it into 2 applications - Belay is On and Belay is On Speaker
 - Server - Google Fierbase, Google Functions
 
 ## Communication
