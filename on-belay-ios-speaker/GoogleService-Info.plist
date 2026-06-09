@@ -3,9 +3,9 @@
 <plist version="1.0">
 <dict>
 	<key>CLIENT_ID</key>
-	<string>1049936970203-68dubs3uts841lhthobg044so3qmpu95.apps.googleusercontent.com</string>
+	<string>1049936970203-b65c8l9hrpheu5gkejslva5akfelqd5f.apps.googleusercontent.com</string>
 	<key>REVERSED_CLIENT_ID</key>
-	<string>com.googleusercontent.apps.1049936970203-68dubs3uts841lhthobg044so3qmpu95</string>
+	<string>com.googleusercontent.apps.1049936970203-b65c8l9hrpheu5gkejslva5akfelqd5f</string>
 	<key>ANDROID_CLIENT_ID</key>
 	<string>1049936970203-6l2fut65m6rubks3ajfk4idjj05079pp.apps.googleusercontent.com</string>
 	<key>API_KEY</key>
@@ -15,7 +15,7 @@
 	<key>PLIST_VERSION</key>
 	<string>1</string>
 	<key>BUNDLE_ID</key>
-	<string>com.gideonhollander.onbelay</string>
+	<string>com.gideonhollander.onbelayspeaker</string>
 	<key>PROJECT_ID</key>
 	<string>on-belay-b1b72</string>
 	<key>STORAGE_BUCKET</key>
@@ -31,6 +31,6 @@
 	<key>IS_SIGNIN_ENABLED</key>
 	<true></true>
 	<key>GOOGLE_APP_ID</key>
-	<string>1:1049936970203:ios:f8e8cfcfd5b82cba0ba7fe</string>
+	<string>1:1049936970203:ios:f0cca1d6c6484ddc0ba7fe</string>
 </dict>
 </plist>
