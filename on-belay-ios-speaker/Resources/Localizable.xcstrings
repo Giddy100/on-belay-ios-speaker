@@ -31,6 +31,22 @@
         }
       }
     },
+    "permissions_message_notifications" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Belay is On requires Notification permissions to play alerts. Please enable them in Settings."
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "אפליקציית Belay is On זקוקה להרשאת התראות כדי להשמיע התראות. אנא אפשר אותן בהגדרות."
+          }
+        }
+      }
+    },
     "active" : {
       "extractionState" : "manual",
       "localizations" : {
@@ -44,6 +60,22 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "פעיל"
+          }
+        }
+      }
+    },
+    "synchronize_with_main" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Synchronize with Main"
+          }
+        },
+        "he" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "סנכרון עם האפליקציה הראשית"
           }
         }
       }
