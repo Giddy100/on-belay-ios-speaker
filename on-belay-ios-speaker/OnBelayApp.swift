@@ -61,7 +61,7 @@ struct OnBelayApp: App {
 
     var body: some Scene {
         WindowGroup {
-            PermissionGuardView {
+            Group {
                 if firebaseService.currentUser != nil {
                     MainScreen()
                         .environment(\.layoutDirection, isHebrew ? .rightToLeft : .leftToRight)

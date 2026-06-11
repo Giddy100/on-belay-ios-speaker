@@ -911,6 +911,16 @@
         }
       }
     },
+    "notification_denied_message" : {
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "This application should notify you about other group members commands. You have declined receiving these messages. If you still want to receive messages from your group members, please enable Push Notifications in iOS Settings"
+          }
+        }
+      }
+    },
     "open_settings" : {
       "localizations" : {
         "en" : {

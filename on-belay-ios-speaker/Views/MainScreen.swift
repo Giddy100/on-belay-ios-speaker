@@ -48,41 +48,73 @@ struct MainScreen: View {
                 .padding(.horizontal, AppTheme.marginMobile)
 
                 // 4th Row: ACTIVE GROUP
-                VStack(alignment: .leading, spacing: AppTheme.gutter) {
-                    HStack(alignment: .top) {
-                        VStack(alignment: .leading, spacing: 4) {
-                            Text(NSLocalizedString("active_group", comment: "").uppercased())
-                                .font(.appLabelCaps())
-                                .foregroundColor(.appActiveGreen)
-                            Text(viewModel.selectedGroup?.name ?? NSLocalizedString("select_group", comment: ""))
-                                .font(.appHeadlineMd())
-                                .foregroundColor(.appOnSurface)
+                if viewModel.hasNotificationPermission == true {
+                    VStack(alignment: .leading, spacing: AppTheme.gutter) {
+                        HStack(alignment: .top) {
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(NSLocalizedString("active_group", comment: "").uppercased())
+                                    .font(.appLabelCaps())
+                                    .foregroundColor(.appActiveGreen)
+                                Text(viewModel.selectedGroup?.name ?? NSLocalizedString("select_group", comment: ""))
+                                    .font(.appHeadlineMd())
+                                    .foregroundColor(.appOnSurface)
+                            }
+                            Spacer()
                         }
-                        Spacer()
-                    }
 
-                    // Main Toggle Button (Synchronize with Main)
-                    Button(action: {
-                        viewModel.syncWithMain()
-                    }) {
-                        HStack(spacing: 12) {
-                            Image(systemName: "arrow.triangle.2.circlepath")
-                            Text(NSLocalizedString("synchronize_with_main", comment: ""))
+                        // Main Toggle Button (Synchronize with Main)
+                        Button(action: {
+                            viewModel.syncWithMain()
+                        }) {
+                            HStack(spacing: 12) {
+                                Image(systemName: "arrow.triangle.2.circlepath")
+                                Text(NSLocalizedString("synchronize_with_main", comment: ""))
+                            }
+                            .font(.appLabelCaps())
+                            .frame(maxWidth: .infinity)
+                            .padding(.vertical, 16)
+                            .background(Color.appActiveGreen)
+                            .foregroundColor(.appGraniteGray)
+                            .cornerRadius(AppTheme.cornerRadiusLg)
+                            .shadow(color: Color.appActiveGreen.opacity(0.3), radius: 8)
                         }
-                        .font(.appLabelCaps())
-                        .frame(maxWidth: .infinity)
-                        .padding(.vertical, 16)
-                        .background(Color.appActiveGreen)
-                        .foregroundColor(.appGraniteGray)
-                        .cornerRadius(AppTheme.cornerRadiusLg)
-                        .shadow(color: Color.appActiveGreen.opacity(0.3), radius: 8)
                     }
+                    .appCard()
+                    .padding(.horizontal, AppTheme.marginMobile)
+                } else if viewModel.hasNotificationPermission == false {
+                    VStack(alignment: .leading, spacing: AppTheme.gutter) {
+                        Text(NSLocalizedString("notification_denied_message", comment: ""))
+                            .font(.appBody())
+                            .foregroundColor(.appOnSurface)
+                            .multilineTextAlignment(.leading)
+
+                        Button(action: {
+                            if let url = URL(string: UIApplication.openSettingsURLString) {
+                                UIApplication.shared.open(url)
+                            }
+                        }) {
+                            Text(NSLocalizedString("open_settings", comment: ""))
+                                .font(.appLabelCaps())
+                                .frame(maxWidth: .infinity)
+                                .padding(.vertical, 16)
+                                .background(Color.appActiveGreen)
+                                .foregroundColor(.appGraniteGray)
+                                .cornerRadius(AppTheme.cornerRadiusLg)
+                                .shadow(color: Color.appActiveGreen.opacity(0.3), radius: 8)
+                        }
+                    }
+                    .appCard()
+                    .padding(.horizontal, AppTheme.marginMobile)
                 }
-                .appCard()
-                .padding(.horizontal, AppTheme.marginMobile)
 
                 Spacer()
             }
+        }
+        .onAppear {
+            viewModel.checkNotificationPermission()
+        }
+        .onReceive(NotificationCenter.default.publisher(for: UIApplication.willEnterForegroundNotification)) { _ in
+            viewModel.checkNotificationPermission()
         }
         .sheet(isPresented: $showingMainSettings) {
             MainSettingsDialog(isPresented: $showingMainSettings)
