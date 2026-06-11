@@ -9,7 +9,7 @@ struct MainScreen: View {
             Color.appBackground.ignoresSafeArea()
 
             VStack(spacing: AppTheme.gutter) {
-                // 1st Row: Top bar (Belay is On)
+                // 1st Row: Top bar (Belay is On Speaker)
                 HStack {
                     HStack(spacing: 12) {
                         Image("BelayIsOnLogo")

@@ -19,6 +19,7 @@ class AppDelegate: NSObject, UIApplicationDelegate {
     }
 
     func application(_ application: UIApplication, didRegisterForRemoteNotificationsWithDeviceToken deviceToken: Data) {
+        print("Updated apns token: \(deviceToken)")
         Messaging.messaging().apnsToken = deviceToken
     }
 
