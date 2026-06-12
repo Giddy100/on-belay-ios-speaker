@@ -84,7 +84,7 @@ struct MainScreen: View {
                 } else if viewModel.hasNotificationPermission == false {
                     VStack(alignment: .leading, spacing: AppTheme.gutter) {
                         Text(NSLocalizedString("notification_denied_message", comment: ""))
-                            .font(.appBody())
+                            .font(.appBodySm())
                             .foregroundColor(.appOnSurface)
                             .multilineTextAlignment(.leading)
 

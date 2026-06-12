@@ -61,22 +61,10 @@ struct OnBelayApp: App {
 
     var body: some Scene {
         WindowGroup {
-            Group {
-                if firebaseService.currentUser != nil {
-                    MainScreen()
-                        .environment(\.layoutDirection, isHebrew ? .rightToLeft : .leftToRight)
-                } else {
-                    LoginView()
-                        .environment(\.layoutDirection, isHebrew ? .rightToLeft : .leftToRight)
-                }
-            }
+            ContentView ()
             .onOpenURL { url in
                 GIDSignIn.sharedInstance.handle(url)
             }
         }
-    }
-
-    var isHebrew: Bool {
-        Locale.current.language.languageCode?.identifier == "he"
     }
 }
